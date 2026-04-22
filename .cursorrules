@@ -1,0 +1,2 @@
+Estamos construyendo una app de tracking para instalaciones de dispositivos Samsara. Usamos Next.js App Router, Tailwind, shadcn/ui y Supabase.
+Prioriza Server Actions sobre APIs y usa TypeScript estricto.
