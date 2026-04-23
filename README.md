@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Instalaciones Samsara
 
-## Getting Started
+> Descripcion general del proyecto: **pendiente**.
 
-First, run the development server:
+## Requisitos
+
+- Node.js 20+
+- pnpm 9+
+
+## Correr el proyecto en local
+
+1. Clona el repositorio.
+2. Instala dependencias:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Crea tu archivo `.env.local` con estas variables:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+NEXT_PUBLIC_SUPABASE_URL=tu_url_de_supabase
+NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_anon_key
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Inicia el servidor de desarrollo:
 
-## Learn More
+```bash
+pnpm dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+5. Abre [http://localhost:3000](http://localhost:3000).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Base de datos (Supabase)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+El esquema inicial vive en `supabase/migrations`.
 
-## Deploy on Vercel
+Si trabajas con Supabase CLI, el flujo usual es:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+supabase start
+supabase db reset
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+> Ajusta estos comandos a tu flujo (local o proyecto remoto enlazado).
+
+## Scripts utiles
+
+- `pnpm dev`: levanta el proyecto en modo desarrollo
+- `pnpm build`: compila para produccion
+- `pnpm start`: corre el build
+- `pnpm lint`: ejecuta eslint
+- `pnpm format`: aplica prettier
+- `pnpm format:check`: valida formato sin escribir cambios
+- `pnpm update-types`: regenera `src/types/database.types.ts` desde Supabase
+
+## Roadmap tecnico (pendiente)
+
+- E2E testing (Playwright o Cypress)
+- Hooks de calidad con Husky + lint-staged
+- CI/CD en GitHub Actions (checks previos al deploy)
+- Deploy en Vercel

@@ -16,8 +16,6 @@ export type Database = {
     Tables: {
       clients: {
         Row: {
-          contact_name: string | null
-          contact_phone: string | null
           created_at: string | null
           drive_folder_link: string | null
           id: string
@@ -25,8 +23,6 @@ export type Database = {
           samsara_user: string | null
         }
         Insert: {
-          contact_name?: string | null
-          contact_phone?: string | null
           created_at?: string | null
           drive_folder_link?: string | null
           id?: string
@@ -34,8 +30,6 @@ export type Database = {
           samsara_user?: string | null
         }
         Update: {
-          contact_name?: string | null
-          contact_phone?: string | null
           created_at?: string | null
           drive_folder_link?: string | null
           id?: string
@@ -47,15 +41,15 @@ export type Database = {
       device_models: {
         Row: {
           id: string
-          name: string
+          model_name: string
         }
         Insert: {
           id?: string
-          name: string
+          model_name: string
         }
         Update: {
           id?: string
-          name?: string
+          model_name?: string
         }
         Relationships: []
       }
@@ -64,21 +58,21 @@ export type Database = {
           created_at: string | null
           device_model_id: string | null
           id: string
-          serial_number: string
+          serial_number: string | null
           vehicle_id: string | null
         }
         Insert: {
           created_at?: string | null
           device_model_id?: string | null
           id?: string
-          serial_number: string
+          serial_number?: string | null
           vehicle_id?: string | null
         }
         Update: {
           created_at?: string | null
           device_model_id?: string | null
           id?: string
-          serial_number?: string
+          serial_number?: string | null
           vehicle_id?: string | null
         }
         Relationships: [
@@ -119,43 +113,34 @@ export type Database = {
       projects: {
         Row: {
           client_id: string | null
+          contact_name: string | null
+          contact_phone: string | null
           created_at: string | null
           drive_project_link: string | null
           id: string
-          is_billed: boolean | null
-          is_docs_signed: boolean | null
-          kickoff_date: string | null
           name: string
-          pm_id: string | null
-          po_number: string | null
           status: string | null
           total_units_expected: number | null
         }
         Insert: {
           client_id?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
           created_at?: string | null
           drive_project_link?: string | null
           id?: string
-          is_billed?: boolean | null
-          is_docs_signed?: boolean | null
-          kickoff_date?: string | null
           name: string
-          pm_id?: string | null
-          po_number?: string | null
           status?: string | null
           total_units_expected?: number | null
         }
         Update: {
           client_id?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
           created_at?: string | null
           drive_project_link?: string | null
           id?: string
-          is_billed?: boolean | null
-          is_docs_signed?: boolean | null
-          kickoff_date?: string | null
           name?: string
-          pm_id?: string | null
-          po_number?: string | null
           status?: string | null
           total_units_expected?: number | null
         }
@@ -167,30 +152,35 @@ export type Database = {
             referencedRelation: "clients"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "projects_pm_id_fkey"
-            columns: ["pm_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
         ]
       }
       technicians: {
         Row: {
+          city: string | null
+          company_name: string | null
           id: string
           is_active: boolean | null
+          is_certified: boolean | null
           name: string
+          phone: string | null
         }
         Insert: {
+          city?: string | null
+          company_name?: string | null
           id?: string
           is_active?: boolean | null
+          is_certified?: boolean | null
           name: string
+          phone?: string | null
         }
         Update: {
+          city?: string | null
+          company_name?: string | null
           id?: string
           is_active?: boolean | null
+          is_certified?: boolean | null
           name?: string
+          phone?: string | null
         }
         Relationships: []
       }
@@ -198,10 +188,10 @@ export type Database = {
         Row: {
           city: string | null
           created_at: string | null
-          economic_number: string | null
           id: string
-          installation_date: string | null
+          installed_at: string | null
           notes: string | null
+          plate: string | null
           project_id: string | null
           status: string | null
           technician_id: string | null
@@ -210,10 +200,10 @@ export type Database = {
         Insert: {
           city?: string | null
           created_at?: string | null
-          economic_number?: string | null
           id?: string
-          installation_date?: string | null
+          installed_at?: string | null
           notes?: string | null
+          plate?: string | null
           project_id?: string | null
           status?: string | null
           technician_id?: string | null
@@ -222,10 +212,10 @@ export type Database = {
         Update: {
           city?: string | null
           created_at?: string | null
-          economic_number?: string | null
           id?: string
-          installation_date?: string | null
+          installed_at?: string | null
           notes?: string | null
+          plate?: string | null
           project_id?: string | null
           status?: string | null
           technician_id?: string | null
@@ -260,51 +250,18 @@ export type Database = {
       project_details: {
         Row: {
           client_id: string | null
+          client_name: string | null
+          contact_name: string | null
+          contact_phone: string | null
           created_at: string | null
           drive_project_link: string | null
           id: string | null
-          is_billed: boolean | null
-          is_docs_signed: boolean | null
-          kickoff_date: string | null
           name: string | null
-          pm_id: string | null
-          po_number: string | null
           progress_percentage: number | null
+          samsara_user: string | null
           status: string | null
           total_units_expected: number | null
           units_installed: number | null
-        }
-        Insert: {
-          client_id?: string | null
-          created_at?: string | null
-          drive_project_link?: string | null
-          id?: string | null
-          is_billed?: boolean | null
-          is_docs_signed?: boolean | null
-          kickoff_date?: string | null
-          name?: string | null
-          pm_id?: string | null
-          po_number?: string | null
-          progress_percentage?: never
-          status?: string | null
-          total_units_expected?: number | null
-          units_installed?: never
-        }
-        Update: {
-          client_id?: string | null
-          created_at?: string | null
-          drive_project_link?: string | null
-          id?: string | null
-          is_billed?: boolean | null
-          is_docs_signed?: boolean | null
-          kickoff_date?: string | null
-          name?: string | null
-          pm_id?: string | null
-          po_number?: string | null
-          progress_percentage?: never
-          status?: string | null
-          total_units_expected?: number | null
-          units_installed?: never
         }
         Relationships: [
           {
@@ -312,13 +269,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "projects_pm_id_fkey"
-            columns: ["pm_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

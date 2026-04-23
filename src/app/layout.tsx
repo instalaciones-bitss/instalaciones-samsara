@@ -12,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="es" className="dark">
+    <html lang="es-MX" className="dark">
       <body className="antialiased">
         <SupabaseProvider>{children}</SupabaseProvider>
       </body>
