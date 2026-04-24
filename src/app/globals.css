@@ -1,23 +1,46 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Tus colores Pantone registrados como clases */
-  --color-brand-success: #2de371;
-  --color-brand-primary: #2d588d;
-  --color-brand-teal-light: #39c78c;
-  --color-brand-teal-dark: #349d8c;
-  --color-brand-ocean: #30768d;
+  /* Colores de Identidad BITSS */
+  --color-brand-green: #2de371; /* El verde vibrante del logo */
+  --color-brand-blue: #2d588d; /* El azul corporativo */
+  --color-brand-teal: #349d8c; /* El tono medio de la transición */
+
+  /* Sobrescribimos los colores base de Shadcn para que usen tu marca */
+  --color-primary: var(--color-brand-blue);
+  --color-primary-foreground: #ffffff;
+
+  --color-accent: var(--color-brand-green);
+  --color-accent-foreground: #000000;
+
+  /* Gradiente BITSS para usar en backgrounds o textos */
+  --background-image-brand-gradient: linear-gradient(
+    135deg,
+    #2de371 0%,
+    #349d8c 50%,
+    #2d588d 100%
+  );
 }
 
-/* Esto fuerza el tema oscuro en toda la aplicación */
 :root {
   color-scheme: dark;
 }
 
 html,
 body {
-  background-color: #0f172a; /* El azul oscuro Slate 950 */
-  color: #f8fafc; /* El blanco azulado Slate 50 */
-  min-height: 100%;
+  /* Fondo Negro Puro para máxima elegancia (igual que en tu logo) */
+  background-color: #000000;
+  color: #f8fafc;
+  min-height: 100vh;
   margin: 0;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
 }
