@@ -34,6 +34,7 @@ CREATE TABLE public.clients (
 CREATE TABLE public.device_models (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     model_name text NOT NULL UNIQUE,
+    has_serial boolean DEFAULT true,
     CONSTRAINT device_models_pkey PRIMARY KEY (id)
 );
 
@@ -60,6 +61,7 @@ CREATE TABLE public.projects (
     contact_name text,
     contact_phone text,
     drive_project_link text,
+    default_device_model_ids uuid[] DEFAULT '{}',
     -- Status de proyecto ampliado
     status text DEFAULT 'pendiente' CHECK (status IN ('pendiente', 'activo', 'pausado', 'finalizado')),
     created_at timestamptz DEFAULT now(),
@@ -84,7 +86,7 @@ CREATE TABLE public.vehicles (
     city text,
     
     -- Estados Operativos Reales
-    status text DEFAULT 'pendiente' CHECK (status IN ('pendiente', 'en_proceso', 'instalado', 'validado', 'problema')),
+    status text DEFAULT 'pendiente' CHECK (status IN ('pendiente', 'instalado', 'problema')),
     
     installed_at timestamptz,
     notes text,
@@ -109,18 +111,23 @@ CREATE TABLE public.devices (
 -- 4. INTELIGENCIA Y AUTOMATIZACIÓN
 -- ==========================================
 
--- Vista actualizada: Ahora cuenta tanto 'instalado' como 'validado' para el progreso
 CREATE OR REPLACE VIEW public.project_details
 WITH (security_invoker = true) AS
 SELECT 
     p.*,
     c.name as client_name,
     c.samsara_user,
-    (SELECT COUNT(*) FROM public.vehicles v WHERE v.project_id = p.id AND v.status IN ('instalado', 'validado')) as units_installed,
+    -- Contamos únicamente los que están como 'instalado'
+    (SELECT COUNT(*) 
+     FROM public.vehicles v 
+     WHERE v.project_id = p.id AND v.status = 'instalado') as units_installed,
+    -- Cálculo de progreso basado solo en 'instalado'
     CASE 
         WHEN p.total_units_expected = 0 THEN 0
         ELSE ROUND(
-            ((SELECT COUNT(*) FROM public.vehicles v WHERE v.project_id = p.id AND v.status IN ('instalado', 'validado'))::float / 
+            ((SELECT COUNT(*) 
+              FROM public.vehicles v 
+              WHERE v.project_id = p.id AND v.status = 'instalado')::float / 
             p.total_units_expected::float) * 100
         )
     END as progress_percentage

@@ -40,14 +40,17 @@ export type Database = {
       }
       device_models: {
         Row: {
+          has_serial: boolean | null
           id: string
           model_name: string
         }
         Insert: {
+          has_serial?: boolean | null
           id?: string
           model_name: string
         }
         Update: {
+          has_serial?: boolean | null
           id?: string
           model_name?: string
         }
@@ -116,6 +119,7 @@ export type Database = {
           contact_name: string | null
           contact_phone: string | null
           created_at: string | null
+          default_device_model_ids: string[] | null
           drive_project_link: string | null
           id: string
           name: string
@@ -127,6 +131,7 @@ export type Database = {
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string | null
+          default_device_model_ids?: string[] | null
           drive_project_link?: string | null
           id?: string
           name: string
@@ -138,6 +143,7 @@ export type Database = {
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string | null
+          default_device_model_ids?: string[] | null
           drive_project_link?: string | null
           id?: string
           name?: string
@@ -186,40 +192,52 @@ export type Database = {
       }
       vehicles: {
         Row: {
+          brand: string | null
           city: string | null
           created_at: string | null
+          eco_number: string | null
           id: string
           installed_at: string | null
+          model: string | null
           notes: string | null
           plate: string | null
           project_id: string | null
           status: string | null
           technician_id: string | null
           vin: string
+          year: number | null
         }
         Insert: {
+          brand?: string | null
           city?: string | null
           created_at?: string | null
+          eco_number?: string | null
           id?: string
           installed_at?: string | null
+          model?: string | null
           notes?: string | null
           plate?: string | null
           project_id?: string | null
           status?: string | null
           technician_id?: string | null
           vin: string
+          year?: number | null
         }
         Update: {
+          brand?: string | null
           city?: string | null
           created_at?: string | null
+          eco_number?: string | null
           id?: string
           installed_at?: string | null
+          model?: string | null
           notes?: string | null
           plate?: string | null
           project_id?: string | null
           status?: string | null
           technician_id?: string | null
           vin?: string
+          year?: number | null
         }
         Relationships: [
           {
@@ -254,6 +272,7 @@ export type Database = {
           contact_name: string | null
           contact_phone: string | null
           created_at: string | null
+          default_device_model_ids: string[] | null
           drive_project_link: string | null
           id: string | null
           name: string | null

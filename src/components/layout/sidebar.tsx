@@ -19,12 +19,12 @@ export default function Sidebar() {
   return (
     <aside className="sticky top-0 flex h-screen w-64 flex-col border-r border-zinc-800 bg-black p-6">
       <div className="mb-10 flex items-center gap-2 px-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 font-bold text-brand-green">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900 font-bold text-brand-green ring-1 ring-zinc-800">
           S
         </div>
         <h2 className="text-xl font-bold tracking-tighter text-white uppercase italic">
           Samsara
-          <span className="ml-0.5 font-light text-blue-500 not-italic">
+          <span className="ml-0.5 font-light text-zinc-400 not-italic">
             Mgmt
           </span>
         </h2>

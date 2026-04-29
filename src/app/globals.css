@@ -6,19 +6,19 @@
   --color-brand-blue: #2d588d; /* El azul corporativo */
   --color-brand-teal: #349d8c; /* El tono medio de la transición */
 
-  /* Sobrescribimos los colores base de Shadcn para que usen tu marca */
-  --color-primary: var(--color-brand-blue);
-  --color-primary-foreground: #ffffff;
+  --color-primary: var(
+    --color-brand-green
+  ); /* Primary de Shadcn/Button/Badge/etc apunta al verde BITSS */
+  --color-primary-foreground: #000000; /* Texto negro sobre fondo verde */
 
-  --color-accent: var(--color-brand-green);
-  --color-accent-foreground: #000000;
+  --color-accent: var(--color-brand-teal); /* El teal como acento secundario */
+  --color-accent-foreground: #ffffff;
 
   /* Gradiente BITSS para usar en backgrounds o textos */
   --background-image-brand-gradient: linear-gradient(
     135deg,
     #2de371 0%,
-    #349d8c 50%,
-    #2d588d 100%
+    #1a8a44 100%
   );
 }
 
@@ -43,4 +43,13 @@ body {
     'Helvetica Neue',
     Arial,
     sans-serif;
+}
+
+@layer base {
+  button,
+  [role='button'],
+  input[type='button'],
+  input[type='submit'] {
+    cursor: pointer !important;
+  }
 }

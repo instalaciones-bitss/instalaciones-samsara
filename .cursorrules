@@ -1,2 +1,31 @@
-Estamos construyendo una app de tracking para instalaciones de dispositivos Samsara. Usamos Next.js App Router, Tailwind, shadcn/ui y Supabase.
-Prioriza Server Actions sobre APIs y usa TypeScript estricto.
+# BITSS - Sistema de Gestión de Instalaciones (Samsara)
+
+## 1. Stack Tecnológico & Arquitectura
+- **Framework:** Next.js (App Router) con TypeScript estricto.
+- **Base de Datos & Auth:** Supabase.
+- **Estilos:** Tailwind CSS v4.
+- **Componentes:** shadcn/ui (basados en Radix UI).
+- **Lógica de Datos:** Priorizar Server Components y Server Actions sobre Route Handlers (APIs). No usar useEffect para fetching si es posible hacerlo en el servidor.
+
+## 2. Identidad Visual (Minimalist Tech-Dark)
+- **Fondo:** `#000000` (Negro puro) para el body y fondos principales.
+- **Contenedores:** `zinc-900` para tarjetas/modales con bordes `zinc-800` y `rounded-2xl`.
+- **Paleta de Colores:**
+  - **Primario:** `--color-brand-green` (#2de371) para botones, acciones y éxito.
+  - **Secundario/Acento:** `--color-brand-teal` (#349d8c).
+  - **Prohibición:** No usar `blue`, `indigo` o `violet` en la interfaz operativa.
+- **Gradiente de Identidad:** `var(--background-image-brand-gradient)`. 
+  - Usar para: Skeletons de carga, barras de acento decorativas, estados "active" en navegación y branding.
+  - NO usar para: Mensajes de error o estatus críticos.
+
+## 3. Reglas de UX y Semántica
+- **Estatus de Instalación:**
+  - `Instalado`: brand-green (#2de371).
+  - `Problema`: red-500.
+  - `Pendiente`: zinc-500 o yellow-500 (según urgencia).
+- **Tablas:** Texto `zinc-400` para datos secundarios (VIN, ID) y `white` para datos principales (Eco, Nombre).
+- **Interacción:** Todos los elementos clickeables deben mostrar `cursor-pointer`.
+
+## 4. Estándares de Código
+- Usar `lucide-react` para iconos.
+- Los componentes de shadcn deben estar en `@/components/ui`.

@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server' // 1. Traemos al cliente de servidor
+import Link from 'next/link'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -18,12 +19,20 @@ export default async function DashboardPage() {
     console.error('Error cargando project_details:', error.message)
   }
 
+  const getProgressColor = (percentage: number) => {
+    if (percentage === 100)
+      return 'bg-[family-name:--background-image-brand-gradient]'
+    if (percentage <= 30) return 'bg-red-500'
+    if (percentage <= 75) return 'bg-yellow-500'
+    return 'bg-brand-green'
+  }
+
   return (
     <div className="min-h-screen bg-black p-8 text-white">
       {/* Header con Bienvenida */}
       <header className="mb-12 flex items-end justify-between">
         <div>
-          <p className="text-sm font-medium tracking-widest text-zinc-500 uppercase">
+          <p className="text-sm font-semibold tracking-widest text-white uppercase">
             Panel de Control
           </p>
           <h1 className="mt-1 text-4xl font-bold">
@@ -31,21 +40,34 @@ export default async function DashboardPage() {
           </h1>
         </div>
         <div className="text-right">
-          <span className="inline-flex items-center rounded-full bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400 ring-1 ring-blue-500/20 ring-inset">
+          <span className="bg-brand-green/10 text-brand-green ring-brand-green/20 inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset">
             {projects?.length || 0} Proyectos Activos
           </span>
         </div>
       </header>
 
+      <div className="mb-4">
+        <h2 className="text-2xl font-bold tracking-tight text-white">
+          Proyectos
+        </h2>
+      </div>
+
       {/* Grid de Proyectos */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {projects?.map((project) => (
-          <div
+          <Link
             key={project.id}
-            className="group relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 transition-all hover:border-zinc-700"
+            href={`/projects/${project.id}`} // <--- Aquí la ruta dinámica
+            className="group relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-sm transition-all hover:border-zinc-700 hover:bg-zinc-900"
           >
+            <div
+              className="pointer-events-none absolute inset-0 opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-10"
+              style={{
+                backgroundImage: 'var(--background-image-brand-gradient)',
+              }}
+            />
             <div className="mb-4 flex items-start justify-between">
-              <h3 className="text-xl font-semibold text-white transition-colors group-hover:text-blue-400">
+              <h3 className="group-hover:text-brand-green text-xl font-semibold text-white transition-colors">
                 {project.name}
               </h3>
               <span
@@ -71,10 +93,11 @@ export default async function DashboardPage() {
                   {project.progress_percentage}%
                 </span>
               </div>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-800">
+              {/* Barra de Progreso con Gradiente BITSS */}
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-900">
                 <div
-                  className="h-full bg-brand-green transition-all duration-500"
-                  style={{ width: `${project.progress_percentage}%` }}
+                  className={`h-full transition-all duration-500 ease-in-out ${getProgressColor(project.progress_percentage ?? 0)}`}
+                  style={{ width: `${project.progress_percentage ?? 0}%` }}
                 />
               </div>
               <p className="mt-1 text-[10px] text-zinc-500">
@@ -82,7 +105,7 @@ export default async function DashboardPage() {
                 unidades
               </p>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 

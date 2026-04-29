@@ -20,7 +20,13 @@ export default async function ProtectedLayout({
       <Sidebar />
 
       {/* El contenido de tus páginas (Dashboard, Projects, etc.) */}
-      <main className="flex-1 bg-black">{children}</main>
+      <main className="flex-1 bg-black">
+        <div
+          className="h-[2px] w-full opacity-70"
+          style={{ backgroundImage: 'var(--background-image-brand-gradient)' }}
+        />
+        {children}
+      </main>
     </div>
   )
 }
