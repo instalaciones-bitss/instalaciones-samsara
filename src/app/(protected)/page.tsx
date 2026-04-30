@@ -21,15 +21,15 @@ export default async function DashboardPage() {
     if (percentage === 100)
       return 'bg-[family-name:--background-image-brand-gradient]'
     if (percentage <= 30) return 'bg-danger'
-    if (percentage <= 75) return 'bg-yellow-500'
-    return 'bg-brand-green'
+    if (percentage <= 75) return 'bg-warning'
+    return 'bg-success'
   }
 
   return (
-    <div className="bg-surface-low min-h-screen p-8 text-zinc-100">
+    <div className="bg-surface-low text-foreground min-h-screen p-8">
       <header className="mb-12 flex items-end justify-between">
         <div>
-          <p className="text-sm font-semibold tracking-widest text-zinc-500 uppercase">
+          <p className="text-muted-foreground text-sm font-semibold tracking-widest uppercase">
             Panel de Control
           </p>
           <h1 className="mt-1 text-4xl font-bold">
@@ -37,7 +37,7 @@ export default async function DashboardPage() {
           </h1>
         </div>
         <div className="text-right">
-          <span className="bg-brand-green/10 text-brand-green ring-brand-green/20 inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset">
+          <span className="bg-success/10 text-success ring-success/20 inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset">
             {projects?.length || 0} Proyectos Activos
           </span>
         </div>
@@ -68,22 +68,24 @@ export default async function DashboardPage() {
               <span
                 className={`rounded-full px-2.5 py-0.5 text-xs font-bold uppercase ${
                   project.status === 'activo'
-                    ? 'bg-brand-green/20 text-brand-green'
-                    : 'bg-surface-high text-zinc-400'
+                    ? 'bg-success/20 text-success'
+                    : 'bg-surface-high text-muted-foreground'
                 }`}
               >
                 {project.status}
               </span>
             </div>
 
-            <p className="mb-6 line-clamp-1 text-sm text-zinc-400">
-              Cliente: {project.client_name}
+            <p className="text-muted-foreground mb-6 line-clamp-1 text-sm">
+              {project.client_name}
             </p>
 
             <div className="space-y-2">
               <div className="flex justify-between text-xs">
-                <span className="text-zinc-500">Progreso de Instalación</span>
-                <span className="font-medium text-zinc-100">
+                <span className="text-muted-foreground">
+                  Progreso de Instalación
+                </span>
+                <span className="text-foreground font-medium">
                   {project.progress_percentage}%
                 </span>
               </div>
@@ -93,7 +95,7 @@ export default async function DashboardPage() {
                   style={{ width: `${project.progress_percentage ?? 0}%` }}
                 />
               </div>
-              <p className="mt-2 text-xs font-medium text-zinc-400">
+              <p className="text-muted-foreground mt-2 text-xs font-medium">
                 {project.units_installed} de {project.total_units_expected}{' '}
                 unidades
               </p>
@@ -104,7 +106,9 @@ export default async function DashboardPage() {
 
       {projects?.length === 0 && (
         <div className="border-surface-border rounded-2xl border border-dashed py-20 text-center">
-          <p className="text-zinc-500">No hay proyectos registrados aún.</p>
+          <p className="text-muted-foreground">
+            No hay proyectos registrados aún.
+          </p>
         </div>
       )}
     </div>

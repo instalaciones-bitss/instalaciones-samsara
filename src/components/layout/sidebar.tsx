@@ -17,10 +17,8 @@ export default function Sidebar() {
   ]
 
   return (
-    // bg-black -> bg-surface-low | border-zinc-800 -> border-surface-border
     <aside className="border-surface-border bg-surface-low sticky top-0 flex h-screen w-64 flex-col border-r p-6">
       <div className="mb-10 flex items-center gap-2 px-2">
-        {/* bg-zinc-900 -> bg-surface-mid | ring-zinc-800 -> ring-surface-border */}
         <div className="bg-surface-mid text-brand-green ring-surface-border flex h-8 w-8 items-center justify-center rounded-lg font-bold ring-1">
           S
         </div>
@@ -37,7 +35,6 @@ export default function Sidebar() {
           <Link
             key={item.name}
             href={item.href}
-            // hover:bg-zinc-900 -> hover:bg-surface-high
             className="group hover:bg-surface-high flex items-center gap-3 rounded-xl px-3 py-2.5 text-zinc-400 transition-all hover:text-white"
           >
             <item.icon className="group-hover:text-brand-green h-5 w-5 transition-colors" />
@@ -46,13 +43,11 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* border-zinc-900 -> border-surface-border */}
       <div className="border-surface-border border-t pt-6">
         <form action={signOut}>
           <button
             type="submit"
-            // hover:bg-red-500/5 -> hover:bg-danger/10 | hover:text-red-400 -> hover:text-danger
-            className="group hover:bg-danger/10 hover:text-danger flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-zinc-500 transition-all"
+            className="group hover:bg-danger/10 hover:text-danger flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-zinc-400 transition-all"
           >
             <LogOut className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
             <span className="text-sm font-medium">Cerrar Sesión</span>

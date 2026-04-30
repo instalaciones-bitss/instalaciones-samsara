@@ -69,7 +69,7 @@ export default async function ProjectDetailPage({
           Cliente:{' '}
           <span className="text-brand-green">{project.clients?.name}</span>
         </p>
-        <p className="text-zinc-500">
+        <p className="text-zinc-400">
           Unidades registradas: {project.vehicles?.length || 0}
         </p>
       </div>

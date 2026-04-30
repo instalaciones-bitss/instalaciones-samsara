@@ -1,10 +1,16 @@
 @import 'tailwindcss';
 
 @theme {
-  /* --- Colores de Identidad BITSS (Tus originales) --- */
+  /* --- Colores de Identidad BITSS (Intactos) --- */
   --color-brand-green: #2de371;
   --color-brand-blue: #2d588d;
   --color-brand-teal: #349d8c;
+
+  /* --- Mapeo de Texto (LA PIEZA QUE FALTABA) --- */
+  /* Zinc-100: Es tu "foreground" (texto principal) */
+  --color-foreground: #f4f4f5;
+  /* Zinc-400: Es tu "muted-foreground" (texto secundario/labels/headers de tabla) */
+  --color-muted-foreground: #a1a1aa;
 
   /* --- Mapeo de Sistema --- */
   --color-primary: var(--color-brand-green);
@@ -13,17 +19,17 @@
   --color-accent: var(--color-brand-teal);
   --color-accent-foreground: #ffffff;
 
-  /* --- Estados Semánticos (Para validaciones y alertas) --- */
+  /* --- Estados Semánticos --- */
   --color-success: var(--color-brand-green);
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
   --color-destructive: #ef4444;
 
-  /* --- Superficies (Para capas sobre el fondo negro) --- */
-  --color-surface-low: #000000; /* Fondo puro */
-  --color-surface-mid: #09090b; /* Zinc-950 (Cards/Modales) */
-  --color-surface-high: #18181b; /* Zinc-900 (Inputs/Hovers) */
-  --color-surface-border: #27272a; /* Zinc-800 (Bordes) */
+  /* --- Superficies --- */
+  --color-surface-low: #000000;
+  --color-surface-mid: #09090b;
+  --color-surface-high: #18181b;
+  --color-surface-border: #27272a;
 
   /* --- Gradiente BITSS --- */
   --background-image-brand-gradient: linear-gradient(
@@ -35,13 +41,15 @@
 
 :root {
   color-scheme: dark;
+  /* Mapeo para componentes que usan var(--...) directamente */
+  --foreground: 240 5% 96%;
+  --muted-foreground: 240 5% 64.9%;
 }
 
 html,
 body {
-  /* Mantenemos tu fondo negro y tus fuentes */
   background-color: #000000;
-  color: #f8fafc;
+  color: var(--color-foreground);
   min-height: 100vh;
   margin: 0;
   font-family:
@@ -57,16 +65,10 @@ body {
 }
 
 @layer base {
-  /* Tus estilos de botones */
   button,
   [role='button'],
   input[type='button'],
   input[type='submit'] {
     cursor: pointer !important;
-  }
-
-  /* Utilidad para textos secundarios que mencionaste (Auditaremos después) */
-  .text-muted {
-    @apply text-zinc-400;
   }
 }
