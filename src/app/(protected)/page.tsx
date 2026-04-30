@@ -18,8 +18,7 @@ export default async function DashboardPage() {
   }
 
   const getProgressColor = (percentage: number) => {
-    if (percentage === 100)
-      return 'bg-[family-name:--background-image-brand-gradient]'
+    if (percentage === 100) return 'bg-brand-gradient'
     if (percentage <= 30) return 'bg-danger'
     if (percentage <= 75) return 'bg-warning'
     return 'bg-success'
@@ -62,7 +61,7 @@ export default async function DashboardPage() {
               }}
             />
             <div className="mb-4 flex items-start justify-between">
-              <h3 className="group-hover:text-brand-green text-xl font-semibold transition-colors">
+              <h3 className="group-hover:text-primary text-xl font-semibold transition-colors">
                 {project.name}
               </h3>
               <span
