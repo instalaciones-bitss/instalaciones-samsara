@@ -66,10 +66,10 @@ export default async function DashboardPage() {
                 {project.name}
               </h3>
               <span
-                className={`rounded px-2 py-1 text-[10px] font-bold uppercase ${
+                className={`rounded-full px-2.5 py-0.5 text-xs font-bold uppercase ${
                   project.status === 'activo'
                     ? 'bg-brand-green/20 text-brand-green'
-                    : 'bg-surface-high text-zinc-500'
+                    : 'bg-surface-high text-zinc-400'
                 }`}
               >
                 {project.status}
@@ -93,7 +93,7 @@ export default async function DashboardPage() {
                   style={{ width: `${project.progress_percentage ?? 0}%` }}
                 />
               </div>
-              <p className="mt-1 text-[10px] text-zinc-500">
+              <p className="mt-2 text-xs font-medium text-zinc-400">
                 {project.units_installed} de {project.total_units_expected}{' '}
                 unidades
               </p>

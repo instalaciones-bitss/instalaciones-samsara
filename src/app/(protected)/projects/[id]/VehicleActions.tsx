@@ -166,21 +166,24 @@ export function VehicleActions({
           <div className="space-y-5 py-4">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-[10px] font-bold tracking-widest text-zinc-500 uppercase">
+                <label
+                  htmlFor="technician_id"
+                  className="text-xs font-semibold tracking-wide text-zinc-400 uppercase"
+                >
                   Técnico Responsable
                 </label>
                 {techIsMissing && (
-                  <span className="text-danger animate-pulse text-[9px] font-bold">
+                  <span className="text-danger animate-pulse text-xs font-bold">
                     REQUERIDO
                   </span>
                 )}
               </div>
-              <Select
-                value={selectedTech}
-                onValueChange={setSelectedTech}
-                name="technician_id"
-              >
-                <SelectTrigger aria-invalid={!!techIsMissing} className="h-9">
+              <Select value={selectedTech} onValueChange={setSelectedTech}>
+                <SelectTrigger
+                  aria-invalid={!!techIsMissing}
+                  className="h-9"
+                  id="technician_id"
+                >
                   <SelectValue placeholder="Seleccionar técnico..." />
                 </SelectTrigger>
                 <SelectContent className="border-surface-border bg-surface-mid">
@@ -194,8 +197,11 @@ export function VehicleActions({
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold tracking-widest text-zinc-500 uppercase">
-                Fecha
+              <label
+                htmlFor="date-picker"
+                className="text-xs font-semibold tracking-wide text-zinc-400 uppercase"
+              >
+                Fecha de Instalación
               </label>
               <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                 <PopoverTrigger asChild>
@@ -216,6 +222,7 @@ export function VehicleActions({
                   align="start"
                 >
                   <Calendar
+                    id="date-picker"
                     mode="single"
                     selected={date}
                     onSelect={(d) => {
@@ -229,7 +236,7 @@ export function VehicleActions({
             </div>
 
             <div className="space-y-3">
-              <span className="text-[10px] font-bold tracking-widest text-zinc-500 uppercase">
+              <span className="text-xs font-semibold tracking-wide text-zinc-400 uppercase">
                 Dispositivos
               </span>
               <div className="grid gap-2">
@@ -253,12 +260,12 @@ export function VehicleActions({
                           {model.model_name}
                         </span>
                         {!model.has_serial ? (
-                          <span className="bg-brand-green/10 text-brand-green rounded-full px-2 py-0.5 text-[9px] font-bold">
+                          <span className="bg-brand-green/10 text-brand-green rounded-full px-2 py-0.5 text-[11px] font-bold">
                             INCLUIDO
                           </span>
                         ) : (
                           isMissing && (
-                            <span className="text-danger animate-pulse text-[9px] font-bold">
+                            <span className="text-danger animate-pulse text-xs font-bold">
                               REQUERIDO
                             </span>
                           )

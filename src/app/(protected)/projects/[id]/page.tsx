@@ -84,12 +84,24 @@ export default async function ProjectDetailPage({
         <Table>
           <TableHeader className="bg-surface-mid">
             <TableRow className="border-surface-border hover:bg-transparent">
-              <TableHead className="w-[200px] text-zinc-400">VIN</TableHead>
-              <TableHead className="text-zinc-400">Económico</TableHead>
-              <TableHead className="text-zinc-400">Placas</TableHead>
-              <TableHead className="text-zinc-400">Estatus</TableHead>
-              <TableHead className="text-zinc-400">Técnico</TableHead>
-              <TableHead className="text-zinc-400">Fecha</TableHead>
+              <TableHead className="text-xs font-bold tracking-wider text-zinc-400 uppercase">
+                VIN
+              </TableHead>
+              <TableHead className="text-xs font-bold tracking-wider text-zinc-400 uppercase">
+                Económico
+              </TableHead>
+              <TableHead className="text-xs font-bold tracking-wider text-zinc-400 uppercase">
+                Placas
+              </TableHead>
+              <TableHead className="text-xs font-bold tracking-wider text-zinc-400 uppercase">
+                Estatus
+              </TableHead>
+              <TableHead className="text-xs font-bold tracking-wider text-zinc-400 uppercase">
+                Técnico
+              </TableHead>
+              <TableHead className="text-xs font-bold tracking-wider text-zinc-400 uppercase">
+                Fecha
+              </TableHead>
               <TableHead />
             </TableRow>
           </TableHeader>
