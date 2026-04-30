@@ -5,7 +5,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  'group/button inline-flex shrink-0 items-center justify-center rounded-4xl border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-brand-green focus-visible:ring-3 focus-visible:ring-brand-green/30 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-danger aria-invalid:ring-3 aria-invalid:ring-danger/20',
+  'group/button inline-flex shrink-0 items-center justify-center rounded-4xl border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-primary/30 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-danger aria-invalid:ring-3 aria-invalid:ring-danger/20',
   {
     variants: {
       variant: {
@@ -16,7 +16,7 @@ const buttonVariants = cva(
           'bg-surface-high text-foreground hover:bg-surface-border aria-expanded:bg-surface-border',
         ghost: 'hover:bg-surface-high hover:text-foreground',
         destructive:
-          'bg-danger text-white hover:opacity-90 focus-visible:border-danger/40 focus-visible:ring-danger/20',
+          'bg-danger text-foreground hover:opacity-90 focus-visible:border-danger/40 focus-visible:ring-danger/20',
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {

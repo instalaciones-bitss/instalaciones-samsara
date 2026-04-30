@@ -65,10 +65,20 @@ body {
 }
 
 @layer base {
+  /* Todo lo interactivo tiene pointer... */
   button,
   [role='button'],
+  [role='menuitem'],
+  [role='option'],
   input[type='button'],
   input[type='submit'] {
     cursor: pointer !important;
+  }
+
+  /* ...A MENOS que esté deshabilitado */
+  button:disabled,
+  [disabled],
+  [aria-disabled='true'] {
+    cursor: not-allowed !important;
   }
 }

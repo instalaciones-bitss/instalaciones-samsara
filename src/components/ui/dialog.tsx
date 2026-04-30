@@ -40,7 +40,7 @@ function DialogOverlay({
       data-slot="dialog-overlay"
       className={cn(
         // Overlay con un ligero desenfoque para que el negro fondo respire
-        'data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 fixed inset-0 isolate z-50 bg-black/80 duration-200 supports-backdrop-filter:backdrop-blur-sm',
+        'data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 bg-surface-low/80 fixed inset-0 isolate z-50 duration-200 supports-backdrop-filter:backdrop-blur-sm',
         className
       )}
       {...props}
@@ -66,7 +66,7 @@ function DialogContent({
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="ring-offset-background focus:ring-brand-green data-open:bg-surface-high data-open:text-muted-foreground absolute top-4 right-4 rounded-full opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none">
+        <DialogPrimitive.Close className="ring-offset-background focus:ring-primary data-open:bg-surface-high data-open:text-muted-foreground absolute top-4 right-4 rounded-full opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none">
           <XIcon className="size-4" />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>

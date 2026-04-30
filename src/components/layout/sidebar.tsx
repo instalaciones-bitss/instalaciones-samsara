@@ -22,7 +22,7 @@ export default function Sidebar() {
         <div className="bg-surface-mid text-success ring-surface-border flex h-8 w-8 items-center justify-center rounded-lg font-bold ring-1">
           S
         </div>
-        <h2 className="text-xl font-bold tracking-tighter text-white uppercase italic">
+        <h2 className="text-foreground text-xl font-bold tracking-tighter uppercase italic">
           Samsara
           <span className="text-muted-foreground ml-0.5 font-light not-italic">
             Mgmt
@@ -35,7 +35,7 @@ export default function Sidebar() {
           <Link
             key={item.name}
             href={item.href}
-            className="group hover:bg-surface-high text-muted-foreground flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all hover:text-white"
+            className="group hover:bg-surface-high text-muted-foreground hover:text-foreground flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all"
           >
             <item.icon className="group-hover:text-success h-5 w-5 transition-colors" />
             <span className="text-sm font-medium">{item.name}</span>

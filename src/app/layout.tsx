@@ -16,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es-MX" className="dark" suppressHydrationWarning>
-      <body className="min-h-screen bg-black text-white antialiased">
+      <body className="bg-surface-low text-foreground min-h-screen antialiased">
         <SupabaseProvider>{children}</SupabaseProvider>
       </body>
     </html>

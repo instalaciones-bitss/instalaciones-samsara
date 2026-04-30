@@ -134,14 +134,14 @@ export function VehicleActions({
         >
           <DropdownMenuItem
             onSelect={handlePrepareInstallation}
-            className="focus:bg-surface-high focus:text-success cursor-pointer"
+            className="focus:bg-surface-high focus:text-success"
           >
             <CheckCircle className="mr-2 h-4 w-4" />
             {vehicle.status === 'instalado'
               ? 'Editar Instalación'
               : 'Gestionar Instalación'}
           </DropdownMenuItem>
-          <DropdownMenuItem className="focus:bg-surface-high focus:text-danger text-danger cursor-pointer">
+          <DropdownMenuItem className="focus:bg-surface-high focus:text-danger text-danger">
             <AlertCircle className="mr-2 h-4 w-4" />
             Reportar Problema
           </DropdownMenuItem>
@@ -149,7 +149,7 @@ export function VehicleActions({
       </DropdownMenu>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="border-surface-border bg-surface-low max-w-md text-white">
+        <DialogContent className="border-surface-border bg-surface-low text-foreground max-w-md">
           <DialogHeader>
             <DialogTitle>
               {vehicle.status === 'instalado' ? 'Editar' : 'Confirmar'}{' '}
@@ -168,7 +168,7 @@ export function VehicleActions({
               <div className="flex items-center justify-between">
                 <label
                   htmlFor="technician_id"
-                  className="text-muted-foreground text-xs font-semibold tracking-wide uppercase"
+                  className="text-muted-foreground text-xs font-semibold tracking-wider uppercase"
                 >
                   Técnico Responsable
                 </label>
@@ -199,7 +199,7 @@ export function VehicleActions({
             <div className="space-y-2">
               <label
                 htmlFor="date-picker"
-                className="text-muted-foreground text-xs font-semibold tracking-wide uppercase"
+                className="text-muted-foreground text-xs font-semibold tracking-wider uppercase"
               >
                 Fecha de Instalación
               </label>
@@ -236,7 +236,7 @@ export function VehicleActions({
             </div>
 
             <div className="space-y-3">
-              <span className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+              <span className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
                 Dispositivos
               </span>
               <div className="grid gap-2">
@@ -260,7 +260,7 @@ export function VehicleActions({
                           {model.model_name}
                         </span>
                         {!model.has_serial ? (
-                          <span className="bg-brand-green/10 text-success rounded-full px-2 py-0.5 text-[11px] font-bold">
+                          <span className="bg-success/10 text-success rounded-full px-2 py-0.5 text-[11px] font-bold">
                             INCLUIDO
                           </span>
                         ) : (
@@ -300,14 +300,14 @@ export function VehicleActions({
               variant="ghost"
               onClick={() => setIsDialogOpen(false)}
               disabled={isPending}
-              className="text-muted-foreground hover:text-white"
+              className="text-muted-foreground hover:text-foreground"
             >
               Cancelar
             </Button>
             <Button
               onClick={handleConfirm}
               disabled={isPending || !isValid}
-              className="bg-brand-green hover:bg-brand-green/90 px-8 font-bold text-zinc-950"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 font-bold"
             >
               {isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

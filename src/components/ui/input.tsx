@@ -14,7 +14,7 @@ function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
         'border-surface-border bg-surface-high/50 text-foreground placeholder:text-muted-foreground',
 
         // 3. Estado de Foco Normal (Verde)
-        'focus-visible:border-brand-green focus-visible:ring-brand-green/20 focus-visible:ring-3',
+        'focus-visible:border-primary focus-visible:ring-primary/20 focus-visible:ring-3',
 
         // 4. Automatización de Errores (Reducción de Código)
         // Cuando 'aria-invalid' sea true, forzamos el color 'danger' incluso en el foco

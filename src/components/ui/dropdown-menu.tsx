@@ -80,7 +80,7 @@ function DropdownMenuItem({
       className={cn(
         "group/dropdown-menu-item relative flex cursor-default items-center gap-2.5 rounded-2xl px-3 py-2 text-sm font-medium outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-inset:pl-9.5 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         // Colores BITSS: brand-green y texto negro
-        'focus:bg-brand-green focus:text-primary-foreground not-data-[variant=destructive]:focus:**:text-primary-foreground',
+        'focus:bg-primary focus:text-primary-foreground',
         // Variante destructiva con tu color danger
         'data-[variant=destructive]:text-danger data-[variant=destructive]:focus:bg-danger/10 data-[variant=destructive]:focus:text-danger data-[variant=destructive]:*:[svg]:text-danger',
         className
@@ -105,7 +105,7 @@ function DropdownMenuCheckboxItem({
       data-inset={inset}
       className={cn(
         "relative flex cursor-default items-center gap-2.5 rounded-2xl py-2 pr-8 pl-3 text-sm font-medium outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-inset:pl-9.5 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        'focus:bg-brand-green focus:text-primary-foreground focus:**:text-primary-foreground',
+        'focus:bg-primary focus:text-primary-foreground focus:**:text-primary-foreground',
         className
       )}
       checked={checked}
@@ -149,7 +149,7 @@ function DropdownMenuRadioItem({
       data-inset={inset}
       className={cn(
         "relative flex cursor-default items-center gap-2.5 rounded-2xl py-2 pr-8 pl-3 text-sm font-medium outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-inset:pl-9.5 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        'focus:bg-brand-green focus:text-primary-foreground focus:**:text-primary-foreground',
+        'focus:bg-primary focus:text-primary-foreground focus:**:text-primary-foreground',
         className
       )}
       {...props}
@@ -236,7 +236,7 @@ function DropdownMenuSubTrigger({
       data-inset={inset}
       className={cn(
         "flex cursor-default items-center gap-2 rounded-2xl px-3 py-2 text-sm font-medium outline-hidden select-none data-inset:pl-9.5 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        'focus:bg-brand-green focus:text-primary-foreground not-data-[variant=destructive]:focus:**:text-primary-foreground data-open:bg-brand-green data-open:text-primary-foreground',
+        'focus:bg-primary focus:text-primary-foreground not-data-[variant=destructive]:focus:**:text-primary-foreground data-open:bg-primary data-open:text-primary-foreground',
         className
       )}
       {...props}

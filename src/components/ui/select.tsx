@@ -48,7 +48,7 @@ function SelectTrigger({
         'data-placeholder:text-muted-foreground disabled:pointer-events-none disabled:opacity-50',
 
         // 2. Estado de Foco Normal (Verde)
-        'focus-visible:border-brand-green focus-visible:ring-brand-green/20 focus-visible:ring-3',
+        'focus-visible:border-primary focus-visible:ring-primary/20 focus-visible:ring-3',
 
         // 3. Automatización de Errores (Reducción de Código)
         'aria-invalid:border-danger aria-invalid:text-danger/90',
@@ -113,9 +113,9 @@ function SelectItem({
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        // Efecto hover/focus usando brand-green y texto oscuro (zinc-950) para legibilidad
-        'focus:bg-brand-green focus:text-zinc-950',
-        'data-highlighted:bg-brand-green data-highlighted:text-zinc-950',
+        // Efecto hover/focus usando primary y texto oscuro (zinc-950) para legibilidad
+        'focus:bg-primary focus:text-zinc-950',
+        'data-highlighted:bg-primary data-highlighted:text-zinc-950',
         'relative flex w-full cursor-default items-center gap-2.5 rounded-2xl py-2 pr-8 pl-3 text-sm font-medium outline-none select-none',
         'data-disabled:pointer-events-none data-disabled:opacity-50',
         className
