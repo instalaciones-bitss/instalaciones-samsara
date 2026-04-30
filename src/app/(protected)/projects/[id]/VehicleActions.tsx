@@ -2,11 +2,32 @@
 
 import { useState, useTransition } from 'react'
 import { format } from 'date-fns'
-import { es } from 'date-fns/locale' // Para que el formato sea "28 de abril"
-import { Calendar as CalendarIcon } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { MoreHorizontal, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
+import { es } from 'date-fns/locale'
+import {
+  Calendar as CalendarIcon,
+  MoreHorizontal,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+} from 'lucide-react'
+import { Tables } from '@/types/database.types'
+
+// Componentes UI
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,89 +42,106 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { updateVehicleStatus } from './actions'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Calendar } from '@/components/ui/calendar'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
+
+// Actions
+import { getVehicleInstallationData, updateVehicleStatus } from './actions'
+import { cn } from '@/lib/utils'
 
 interface VehicleActionsProps {
-  vehicle: {
-    id: string
-    vin: string
-  }
+  vehicle: Tables<'vehicles'>
   projectId: string
-  // Cambiamos a un array de strings para los nombres de los modelos
-  deviceModelNames: string[]
-  technicians: { id: string; name: string }[]
+  projectDevices: Tables<'device_models'>[]
+  technicians: Tables<'technicians'>[]
 }
 
 export function VehicleActions({
   vehicle,
   projectId,
-  deviceModelNames,
+  projectDevices,
   technicians,
 }: VehicleActionsProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
-  // 1. Nuevo estado para el técnico seleccionado
-  const [selectedTech, setSelectedTech] = useState<string>('')
-  // 1. Agregamos el estado para la fecha
-  const [date, setDate] = useState<Date>()
+
+  const [selectedTech, setSelectedTech] = useState<string>(
+    vehicle.technician_id ?? ''
+  )
+  const [date, setDate] = useState<Date | undefined>(
+    vehicle.installed_at ? new Date(vehicle.installed_at) : new Date()
+  )
+  const [deviceSerialsByModelId, setDeviceSerialsByModelId] = useState<
+    Record<string, string>
+  >({})
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
 
-  const handleConfirm = () => {
-    // 1. Validación de seguridad extra
-    if (!selectedTech || !date) return
+  const handlePrepareInstallation = async () => {
+    try {
+      const installed = await getVehicleInstallationData(vehicle.id)
+      const initialSerials: Record<string, string> = {}
+      projectDevices.forEach((m) => (initialSerials[m.id] = ''))
+      installed.forEach((d) => {
+        if (d.device_model_id)
+          initialSerials[d.device_model_id] = d.serial_number ?? ''
+      })
+      setDeviceSerialsByModelId(initialSerials)
+      setSelectedTech(vehicle.technician_id ?? '')
+      setDate(
+        vehicle.installed_at ? new Date(vehicle.installed_at) : new Date()
+      )
+      setIsDialogOpen(true)
+    } catch (e) {
+      alert('No se pudieron cargar los datos de los dispositivos.')
+    }
+  }
 
+  const handleConfirm = () => {
     startTransition(async () => {
       try {
-        // 2. Enviamos todo a la Server Action actualizada
         await updateVehicleStatus(
           vehicle.id,
           'instalado',
           projectId,
-          selectedTech, // ID del técnico
-          date // Objeto Date de JS
+          deviceSerialsByModelId,
+          selectedTech,
+          date
         )
-
         setIsDialogOpen(false)
       } catch (error) {
-        console.error('Error al actualizar:', error)
-        alert('Hubo un error al guardar los cambios')
+        alert(error instanceof Error ? error.message : 'Error desconocido')
       }
     })
   }
+
+  const techIsMissing = !selectedTech
+  const isValid =
+    !!selectedTech &&
+    !!date &&
+    projectDevices.every(
+      (m) => !m.has_serial || deviceSerialsByModelId[m.id]?.trim()
+    )
+
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 cursor-pointer p-0">
-            <MoreHorizontal className="h-4 w-4" />
+          <Button variant="ghost" className="border-surface-border h-8 w-8 p-0">
+            <MoreHorizontal className="h-4 w-4 text-zinc-400" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
-          className="border-zinc-800 bg-zinc-900 text-zinc-200"
+          className="border-surface-border bg-surface-mid text-zinc-200"
         >
           <DropdownMenuItem
-            onSelect={() => setIsDialogOpen(true)}
-            className="focus:text-brand-green cursor-pointer focus:bg-zinc-800"
+            onSelect={handlePrepareInstallation}
+            className="focus:bg-surface-high focus:text-brand-green cursor-pointer"
           >
             <CheckCircle className="mr-2 h-4 w-4" />
-            Marcar como Instalado
+            {vehicle.status === 'instalado'
+              ? 'Editar Instalación'
+              : 'Gestionar Instalación'}
           </DropdownMenuItem>
-
-          <DropdownMenuItem className="cursor-pointer focus:bg-zinc-800 focus:text-red-500">
+          <DropdownMenuItem className="focus:bg-surface-high focus:text-danger text-danger cursor-pointer">
             <AlertCircle className="mr-2 h-4 w-4" />
             Reportar Problema
           </DropdownMenuItem>
@@ -111,117 +149,163 @@ export function VehicleActions({
       </DropdownMenu>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="border-zinc-800 bg-zinc-950 text-white">
+        <DialogContent className="border-surface-border bg-surface-low max-w-md text-white">
           <DialogHeader>
-            <DialogTitle>Confirmar Instalación</DialogTitle>
+            <DialogTitle>
+              {vehicle.status === 'instalado' ? 'Editar' : 'Confirmar'}{' '}
+              Instalación
+            </DialogTitle>
             <DialogDescription className="text-zinc-400">
-              Se registrará la instalación para la unidad:
-              <span className="ml-1 font-mono text-white">{vehicle.vin}</span>
+              Unidad:{' '}
+              <span className="text-brand-green font-mono">
+                {vehicle.eco_number || vehicle.vin}
+              </span>
             </DialogDescription>
           </DialogHeader>
 
-          {/* --- INICIO DEL CONTENIDO (Entre Header y Footer) --- */}
-          <div className="space-y-6 py-4">
-            {/* SECCIÓN 1: Selección de Técnico (Entrada manual) */}
+          <div className="space-y-5 py-4">
             <div className="space-y-2">
-              <label className="text-xs font-semibold tracking-wider text-zinc-500 uppercase">
-                Asignar Técnico
-              </label>
-              <Select value={selectedTech} onValueChange={setSelectedTech}>
-                <SelectTrigger className="w-full border-zinc-800 bg-zinc-900 text-zinc-200">
-                  <SelectValue placeholder="Selecciona un técnico..." />
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-bold tracking-widest text-zinc-500 uppercase">
+                  Técnico Responsable
+                </label>
+                {techIsMissing && (
+                  <span className="text-danger animate-pulse text-[9px] font-bold">
+                    REQUERIDO
+                  </span>
+                )}
+              </div>
+              <Select
+                value={selectedTech}
+                onValueChange={setSelectedTech}
+                name="technician_id"
+              >
+                <SelectTrigger aria-invalid={!!techIsMissing} className="h-9">
+                  <SelectValue placeholder="Seleccionar técnico..." />
                 </SelectTrigger>
-                <SelectContent className="border-zinc-800 bg-zinc-900 text-zinc-200">
-                  {technicians.map((tech) => (
-                    <SelectItem key={tech.id} value={tech.id}>
-                      {tech.name}
+                <SelectContent className="border-surface-border bg-surface-mid">
+                  {technicians.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      {t.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            {/* SECCIÓN: Fecha de Instalación */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold tracking-wider text-zinc-500 uppercase">
-                Fecha de Instalación
+              <label className="text-[10px] font-bold tracking-widest text-zinc-500 uppercase">
+                Fecha
               </label>
               <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                 <PopoverTrigger asChild>
                   <Button
-                    variant={'outline'}
-                    className={cn(
-                      'w-full justify-start border-zinc-800 bg-zinc-900 text-left font-normal text-zinc-200',
-                      !date && 'text-zinc-500'
-                    )}
+                    variant="outline"
+                    className="border-surface-border bg-surface-mid w-full justify-start text-zinc-200"
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {/* Formato: PPP muestra "28 de abril de 2026" */}
+                    <CalendarIcon className="text-brand-green mr-2 h-4 w-4" />
                     {date ? (
                       format(date, 'PPP', { locale: es })
                     ) : (
-                      <span>Selecciona una fecha</span>
+                      <span>Seleccionar fecha</span>
                     )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent
-                  className="w-auto border-zinc-800 bg-zinc-950 p-0"
+                  className="border-surface-border bg-surface-low w-auto p-0"
                   align="start"
                 >
                   <Calendar
                     mode="single"
                     selected={date}
-                    onSelect={(selectedDate) => {
-                      setDate(selectedDate) // Guarda la fecha
-                      setIsCalendarOpen(false) // <--- ESTO cierra el calendario automáticamente
+                    onSelect={(d) => {
+                      setDate(d)
+                      setIsCalendarOpen(false)
                     }}
-                    autoFocus
-                    locale={es} // Fuerza al calendario a usar Lunes como inicio y meses en español
-                    className="bg-zinc-950 text-zinc-200"
+                    locale={es}
                   />
                 </PopoverContent>
               </Popover>
             </div>
 
-            {/* SECCIÓN 2: Visualización del Kit (Información del Proyecto) */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-semibold tracking-wider text-zinc-500 uppercase">
+            <div className="space-y-3">
+              <span className="text-[10px] font-bold tracking-widest text-zinc-500 uppercase">
                 Dispositivos
-              </h4>
-              <div className="space-y-2">
-                {deviceModelNames.map((name, index) => (
-                  <div
-                    key={index}
-                    className="rounded-md border border-zinc-800 bg-zinc-900 p-2.5"
-                  >
-                    <span className="text-brand-green text-sm font-medium">
-                      {name}
-                    </span>
-                  </div>
-                ))}
+              </span>
+              <div className="grid gap-2">
+                {projectDevices.map((model) => {
+                  const isMissing =
+                    model.has_serial &&
+                    !deviceSerialsByModelId[model.id]?.trim()
+
+                  return (
+                    <div
+                      key={model.id}
+                      className="border-surface-border bg-surface-mid/50 rounded-md border p-3"
+                    >
+                      <div className="mb-2 flex items-center justify-between">
+                        <span
+                          className={cn(
+                            'text-xs font-medium',
+                            isMissing ? 'text-danger' : 'text-zinc-300'
+                          )}
+                        >
+                          {model.model_name}
+                        </span>
+                        {!model.has_serial ? (
+                          <span className="bg-brand-green/10 text-brand-green rounded-full px-2 py-0.5 text-[9px] font-bold">
+                            INCLUIDO
+                          </span>
+                        ) : (
+                          isMissing && (
+                            <span className="text-danger animate-pulse text-[9px] font-bold">
+                              REQUERIDO
+                            </span>
+                          )
+                        )}
+                      </div>
+
+                      {model.has_serial && (
+                        <Input
+                          id={model.id}
+                          name={model.id}
+                          placeholder="S/N"
+                          aria-invalid={!!isMissing}
+                          className="h-8 font-mono text-xs"
+                          value={deviceSerialsByModelId[model.id] || ''}
+                          onChange={(e) =>
+                            setDeviceSerialsByModelId((prev) => ({
+                              ...prev,
+                              [model.id]: e.target.value,
+                            }))
+                          }
+                        />
+                      )}
+                    </div>
+                  )
+                })}
               </div>
             </div>
           </div>
-          {/* --- FIN DEL CONTENIDO --- */}
 
-          <DialogFooter>
+          <DialogFooter className="gap-2 sm:gap-0">
             <Button
-              variant="default"
+              variant="ghost"
               onClick={() => setIsDialogOpen(false)}
               disabled={isPending}
-              className="min-w-[100px] text-black"
+              className="text-zinc-400 hover:text-white"
             >
               Cancelar
             </Button>
             <Button
               onClick={handleConfirm}
-              disabled={isPending || !selectedTech} // Se deshabilita si no hay técnico seleccionado
-              className="min-w-[100px] text-black"
+              disabled={isPending || !isValid}
+              className="bg-brand-green hover:bg-brand-green/90 px-8 font-bold text-zinc-950"
             >
               {isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                'Confirmar'
+                'Guardar Cambios'
               )}
             </Button>
           </DialogFooter>

@@ -1,20 +1,31 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Colores de Identidad BITSS */
-  --color-brand-green: #2de371; /* El verde vibrante del logo */
-  --color-brand-blue: #2d588d; /* El azul corporativo */
-  --color-brand-teal: #349d8c; /* El tono medio de la transición */
+  /* --- Colores de Identidad BITSS (Tus originales) --- */
+  --color-brand-green: #2de371;
+  --color-brand-blue: #2d588d;
+  --color-brand-teal: #349d8c;
 
-  --color-primary: var(
-    --color-brand-green
-  ); /* Primary de Shadcn/Button/Badge/etc apunta al verde BITSS */
-  --color-primary-foreground: #000000; /* Texto negro sobre fondo verde */
+  /* --- Mapeo de Sistema --- */
+  --color-primary: var(--color-brand-green);
+  --color-primary-foreground: #000000;
 
-  --color-accent: var(--color-brand-teal); /* El teal como acento secundario */
+  --color-accent: var(--color-brand-teal);
   --color-accent-foreground: #ffffff;
 
-  /* Gradiente BITSS para usar en backgrounds o textos */
+  /* --- Estados Semánticos (Para validaciones y alertas) --- */
+  --color-success: var(--color-brand-green);
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-destructive: #ef4444;
+
+  /* --- Superficies (Para capas sobre el fondo negro) --- */
+  --color-surface-low: #000000; /* Fondo puro */
+  --color-surface-mid: #09090b; /* Zinc-950 (Cards/Modales) */
+  --color-surface-high: #18181b; /* Zinc-900 (Inputs/Hovers) */
+  --color-surface-border: #27272a; /* Zinc-800 (Bordes) */
+
+  /* --- Gradiente BITSS --- */
   --background-image-brand-gradient: linear-gradient(
     135deg,
     #2de371 0%,
@@ -28,7 +39,7 @@
 
 html,
 body {
-  /* Fondo Negro Puro para máxima elegancia (igual que en tu logo) */
+  /* Mantenemos tu fondo negro y tus fuentes */
   background-color: #000000;
   color: #f8fafc;
   min-height: 100vh;
@@ -46,10 +57,16 @@ body {
 }
 
 @layer base {
+  /* Tus estilos de botones */
   button,
   [role='button'],
   input[type='button'],
   input[type='submit'] {
     cursor: pointer !important;
+  }
+
+  /* Utilidad para textos secundarios que mencionaste (Auditaremos después) */
+  .text-muted {
+    @apply text-zinc-400;
   }
 }

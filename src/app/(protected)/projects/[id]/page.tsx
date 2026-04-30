@@ -18,68 +18,49 @@ export default async function ProjectDetailPage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  // 1. Obtenemos el ID de la URL
   const { id } = await params
   const supabase = await createClient()
 
-  // 2. Traemos la información del proyecto
   const { data: project, error } = await supabase
     .from('projects')
     .select(
       /* sql */
       `
         *,
-        clients (
-          name
-        ),
+        clients ( name ),
         vehicles (
-          id,
-          vin,
-          plate,
-          eco_number,
-          status,
-          installed_at,
-          technician_id,
-          technicians (
-            name
-          )
+          id, vin, plate, eco_number, status, installed_at, technician_id,
+          technicians ( name )
         )
       `
     )
     .eq('id', id)
     .single()
 
-  // 2. Justo debajo de obtener el 'project', obtenemos los nombres de los modelos:
-  const { data: models } = await supabase
+  const { data: projectDevices } = await supabase
     .from('device_models')
-    .select('model_name')
+    .select('id, model_name, has_serial')
     .in('id', project?.default_device_model_ids || [])
-
-  const deviceModelNames = models?.map((m) => m.model_name) || []
 
   const { data: technicians } = await supabase
     .from('technicians')
     .select('id, name')
-    .eq('is_active', true) // Solo traemos a los que están activos
-    .order('name', { ascending: true }) // Los ordenamos alfabéticamente
+    .eq('is_active', true)
+    .order('name', { ascending: true })
 
-  // 3. Si no existe el proyecto, mandamos a una página 404
   if (error || !project) {
     notFound()
   }
 
-  // Definimos los estilos por estatus
   const statusStyles: Record<string, string> = {
-    pendiente: 'bg-zinc-800 text-zinc-400 hover:bg-zinc-800',
+    pendiente: 'bg-surface-high text-zinc-400 hover:bg-surface-high',
     instalado:
       'bg-brand-green/10 text-brand-green border-brand-green/20 hover:bg-brand-green/10',
-    problema:
-      'bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/10',
+    problema: 'bg-danger/10 text-danger border-danger/20 hover:bg-danger/10',
   }
 
   return (
     <div className="space-y-6 p-6">
-      {/* Encabezado del Proyecto */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-white">
           {project.name}
@@ -99,10 +80,10 @@ export default async function ProjectDetailPage({
         </h2>
       </div>
 
-      <div className="rounded-md border border-zinc-800 bg-zinc-900">
+      <div className="border-surface-border bg-surface-mid rounded-md border">
         <Table>
-          <TableHeader className="bg-zinc-900">
-            <TableRow className="border-zinc-800 hover:bg-transparent">
+          <TableHeader className="bg-surface-mid">
+            <TableRow className="border-surface-border hover:bg-transparent">
               <TableHead className="w-[200px] text-zinc-400">VIN</TableHead>
               <TableHead className="text-zinc-400">Económico</TableHead>
               <TableHead className="text-zinc-400">Placas</TableHead>
@@ -116,7 +97,7 @@ export default async function ProjectDetailPage({
             {project.vehicles?.map((vehicle) => (
               <TableRow
                 key={vehicle.id}
-                className="border-zinc-800 hover:bg-zinc-800/30"
+                className="border-surface-border hover:bg-surface-high/30"
               >
                 <TableCell className="font-medium text-zinc-400">
                   {vehicle.vin}
@@ -135,11 +116,9 @@ export default async function ProjectDetailPage({
                     {vehicle.status ?? 'pendiente'}
                   </Badge>
                 </TableCell>
-                {/* Celda del Técnico */}
                 <TableCell className="font-medium text-white">
                   {vehicle.technicians?.name || '---'}
                 </TableCell>
-                {/* Celda de la Fecha */}
                 <TableCell className="text-zinc-400">
                   {vehicle.installed_at
                     ? format(new Date(vehicle.installed_at), 'dd/MM/yyyy', {
@@ -149,10 +128,10 @@ export default async function ProjectDetailPage({
                 </TableCell>
                 <TableCell>
                   <VehicleActions
-                    vehicle={vehicle}
+                    vehicle={vehicle as any}
                     projectId={project.id}
-                    deviceModelNames={deviceModelNames}
-                    technicians={technicians || []} // Pasamos la lista aquí
+                    projectDevices={projectDevices as any}
+                    technicians={technicians as any}
                   />
                 </TableCell>
               </TableRow>

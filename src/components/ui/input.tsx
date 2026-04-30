@@ -1,14 +1,32 @@
-import * as React from "react"
+import * as React from 'react'
+import { cn } from '@/lib/utils'
 
-import { cn } from "@/lib/utils"
-
-function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
   return (
     <input
       type={type}
       data-slot="input"
       className={cn(
-        "h-9 w-full min-w-0 rounded-3xl border border-transparent bg-input/50 px-3 py-1 text-base transition-[color,box-shadow,background-color] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
+        // 1. Estructura y Transiciones
+        'h-9 w-full min-w-0 rounded-3xl border px-3 py-1 text-base transition-[color,box-shadow,background-color] outline-none md:text-sm',
+
+        // 2. Colores Base (BITSS Style)
+        'border-surface-border bg-surface-high/50 text-zinc-100 placeholder:text-zinc-500',
+
+        // 3. Estado de Foco Normal (Verde)
+        'focus-visible:border-brand-green focus-visible:ring-brand-green/20 focus-visible:ring-3',
+
+        // 4. Automatización de Errores (Reducción de Código)
+        // Cuando 'aria-invalid' sea true, forzamos el color 'danger' incluso en el foco
+        'aria-invalid:border-danger aria-invalid:text-danger/90',
+        'aria-invalid:focus-visible:border-danger aria-invalid:focus-visible:ring-danger/20',
+
+        // 5. Estados Deshabilitados
+        'disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50',
+
+        // Estilos de archivo (si aplica)
+        'file:text-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium',
+
         className
       )}
       {...props}

@@ -107,6 +107,9 @@ CREATE TABLE public.devices (
     CONSTRAINT devices_pkey PRIMARY KEY (id)
 );
 
+ALTER TABLE public.devices 
+ADD CONSTRAINT unique_vehicle_device UNIQUE (vehicle_id, device_model_id);
+
 -- ==========================================
 -- 4. INTELIGENCIA Y AUTOMATIZACIÓN
 -- ==========================================

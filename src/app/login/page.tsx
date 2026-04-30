@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-react'
 
 export default function LoginPage() {
-  // 1. El Gancho (Hook) de conexión
+  // Hook de conexión con la acción de login
   const [state, formAction, isPending] = useActionState(login, null)
 
   return (
@@ -21,7 +21,8 @@ export default function LoginPage() {
               MGMT
             </span>
           </h1>
-          <p className="text-sm text-zinc-500">Ingresa al panel de control</p>
+          {/* text-zinc-500 -> text-zinc-400 (corresponde a tu clase .text-muted) */}
+          <p className="text-sm text-zinc-400">Ingresa al panel de control</p>
         </div>
 
         <div className="space-y-4">
@@ -34,12 +35,12 @@ export default function LoginPage() {
               disabled={isPending}
               className={
                 state?.errors?.email
-                  ? 'border-red-500 focus-visible:ring-red-500'
-                  : 'border-zinc-800'
+                  ? 'border-danger focus-visible:ring-danger'
+                  : 'border-surface-border'
               }
             />
             {state?.errors?.email && (
-              <p className="text-xs font-medium text-red-500">
+              <p className="text-danger text-xs font-medium">
                 {state.errors.email[0]}
               </p>
             )}
@@ -54,12 +55,12 @@ export default function LoginPage() {
               disabled={isPending}
               className={
                 state?.errors?.password
-                  ? 'border-red-500 focus-visible:ring-red-500'
-                  : 'border-zinc-800'
+                  ? 'border-danger focus-visible:ring-danger'
+                  : 'border-surface-border'
               }
             />
             {state?.errors?.password && (
-              <p className="text-xs font-medium text-red-500">
+              <p className="text-danger text-xs font-medium">
                 {state.errors.password[0]}
               </p>
             )}
@@ -67,7 +68,7 @@ export default function LoginPage() {
 
           {/* Error de Supabase (Credenciales inválidas) */}
           {state?.message && (
-            <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-center text-xs font-medium text-red-500">
+            <div className="border-danger/20 bg-danger/10 text-danger rounded-lg border p-3 text-center text-xs font-medium">
               {state.message}
             </div>
           )}

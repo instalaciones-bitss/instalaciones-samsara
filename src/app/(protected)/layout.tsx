@@ -16,11 +16,9 @@ export default async function ProtectedLayout({
 
   return (
     <div className="flex">
-      {/* La pieza que acabamos de crear */}
       <Sidebar />
 
-      {/* El contenido de tus páginas (Dashboard, Projects, etc.) */}
-      <main className="flex-1 bg-black">
+      <main className="bg-surface-low flex-1">
         <div
           className="h-[2px] w-full opacity-70"
           style={{ backgroundImage: 'var(--background-image-brand-gradient)' }}
