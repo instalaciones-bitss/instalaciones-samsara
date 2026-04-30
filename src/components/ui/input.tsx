@@ -11,7 +11,7 @@ function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
         'h-9 w-full min-w-0 rounded-3xl border px-3 py-1 text-base transition-[color,box-shadow,background-color] outline-none md:text-sm',
 
         // 2. Colores Base (BITSS Style)
-        'border-surface-border bg-surface-high/50 text-zinc-100 placeholder:text-zinc-500',
+        'border-surface-border bg-surface-high/50 text-foreground placeholder:text-muted-foreground',
 
         // 3. Estado de Foco Normal (Verde)
         'focus-visible:border-brand-green focus-visible:ring-brand-green/20 focus-visible:ring-3',

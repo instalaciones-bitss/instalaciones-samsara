@@ -45,7 +45,7 @@ function SelectTrigger({
       className={cn(
         // 1. Estructura y Colores Base
         'bg-surface-high border-surface-border flex h-9 w-full items-center justify-between gap-1.5 rounded-3xl border px-3 py-2 text-sm transition-all outline-none',
-        'disabled:pointer-events-none disabled:opacity-50 data-placeholder:text-zinc-500',
+        'data-placeholder:text-muted-foreground disabled:pointer-events-none disabled:opacity-50',
 
         // 2. Estado de Foco Normal (Verde)
         'focus-visible:border-brand-green focus-visible:ring-brand-green/20 focus-visible:ring-3',
@@ -61,7 +61,7 @@ function SelectTrigger({
     >
       {children}
       <SelectPrimitive.Icon asChild>
-        <ChevronDownIcon className="size-4 text-zinc-500" />
+        <ChevronDownIcon className="text-muted-foreground size-4" />
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
   )
@@ -79,7 +79,7 @@ function SelectContent({
         data-slot="select-content"
         className={cn(
           // Fondo mid y bordes redondeados para el panel desplegable
-          'bg-surface-mid border-surface-border relative z-50 max-h-96 min-w-32 overflow-hidden rounded-3xl border text-zinc-100 shadow-xl',
+          'bg-surface-mid border-surface-border text-foreground relative z-50 max-h-96 min-w-32 overflow-hidden rounded-3xl border shadow-xl',
           'data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
           position === 'popper' &&
             'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',

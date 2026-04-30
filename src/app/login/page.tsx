@@ -17,12 +17,14 @@ export default function LoginPage() {
         <div className="space-y-2 text-center">
           <h1 className="text-3xl font-bold tracking-tighter text-white italic">
             BITSS
-            <span className="text-brand-green ml-1 font-light not-italic">
+            <span className="text-success ml-1 font-light not-italic">
               MGMT
             </span>
           </h1>
-          {/* text-zinc-500 -> text-zinc-400 (corresponde a tu clase .text-muted) */}
-          <p className="text-sm text-zinc-400">Ingresa al panel de control</p>
+          {/* text-muted-foreground -> text-muted-foreground (corresponde a tu clase .text-muted) */}
+          <p className="text-muted-foreground text-sm">
+            Ingresa al panel de control
+          </p>
         </div>
 
         <div className="space-y-4">

@@ -46,7 +46,7 @@ function DropdownMenuContent({
         className={cn(
           'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 z-50 max-h-(--radix-dropdown-menu-content-available-height) w-(--radix-dropdown-menu-trigger-width) min-w-48 origin-(--radix-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-3xl p-1.5 shadow-lg duration-100 data-[state=closed]:overflow-hidden',
           // Mapeo a variables BITSS
-          'bg-surface-mid border-surface-border border text-zinc-100',
+          'bg-surface-mid border-surface-border text-foreground border',
           className
         )}
         {...props}
@@ -179,7 +179,7 @@ function DropdownMenuLabel({
       data-slot="dropdown-menu-label"
       data-inset={inset}
       className={cn(
-        'px-3 py-2.5 text-xs text-zinc-500 data-inset:pl-9.5',
+        'text-muted-foreground px-3 py-2.5 text-xs data-inset:pl-9.5',
         className
       )}
       {...props}
@@ -208,7 +208,7 @@ function DropdownMenuShortcut({
     <span
       data-slot="dropdown-menu-shortcut"
       className={cn(
-        'group-focus/dropdown-menu-item:text-primary-foreground ml-auto text-xs tracking-widest text-zinc-500',
+        'group-focus/dropdown-menu-item:text-primary-foreground text-muted-foreground ml-auto text-xs tracking-widest',
         className
       )}
       {...props}
@@ -256,7 +256,7 @@ function DropdownMenuSubContent({
       data-slot="dropdown-menu-sub-content"
       className={cn(
         'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 z-50 min-w-36 origin-(--radix-dropdown-menu-content-transform-origin) overflow-hidden rounded-3xl p-1.5 shadow-lg',
-        'bg-surface-mid border-surface-border border text-zinc-100',
+        'bg-surface-mid border-surface-border text-foreground border',
         className
       )}
       {...props}

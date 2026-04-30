@@ -12,11 +12,11 @@ const badgeVariants = cva(
         // Usa tu verde BITSS y texto negro (definido en primary-foreground)
         default: 'bg-primary text-primary-foreground hover:bg-primary/90',
         // Usa tu gris de superficie alta para estados neutros
-        secondary: 'bg-surface-high text-zinc-300',
+        secondary: 'bg-surface-high text-muted-foreground',
         // Usa tu variable de peligro
         destructive: 'bg-danger/10 text-danger border-danger/20',
         // Usa tus bordes de superficie
-        outline: 'border-surface-border text-zinc-400 bg-transparent',
+        outline: 'border-surface-border text-muted-foreground bg-transparent',
         ghost: 'hover:bg-surface-high hover:text-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
       },

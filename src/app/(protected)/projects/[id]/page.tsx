@@ -83,22 +83,22 @@ export default async function ProjectDetailPage({
         <Table>
           <TableHeader className="bg-surface-mid">
             <TableRow className="border-surface-border hover:bg-transparent">
-              <TableHead className="text-muted-foreground text-xs font-bold tracking-wider uppercase">
+              <TableHead className="text-xs font-bold tracking-wider uppercase">
                 VIN
               </TableHead>
-              <TableHead className="text-muted-foreground text-xs font-bold tracking-wider uppercase">
+              <TableHead className="text-xs font-bold tracking-wider uppercase">
                 Económico
               </TableHead>
-              <TableHead className="text-muted-foreground text-xs font-bold tracking-wider uppercase">
+              <TableHead className="text-xs font-bold tracking-wider uppercase">
                 Placas
               </TableHead>
-              <TableHead className="text-muted-foreground text-xs font-bold tracking-wider uppercase">
+              <TableHead className="text-xs font-bold tracking-wider uppercase">
                 Estatus
               </TableHead>
-              <TableHead className="text-muted-foreground text-xs font-bold tracking-wider uppercase">
+              <TableHead className="text-xs font-bold tracking-wider uppercase">
                 Técnico
               </TableHead>
-              <TableHead className="text-muted-foreground text-xs font-bold tracking-wider uppercase">
+              <TableHead className="text-xs font-bold tracking-wider uppercase">
                 Fecha
               </TableHead>
               <TableHead />
@@ -110,13 +110,13 @@ export default async function ProjectDetailPage({
                 key={vehicle.id}
                 className="border-surface-border hover:bg-surface-high/30"
               >
-                <TableCell className="text-muted-foreground font-medium">
+                <TableCell className="text-foreground font-medium">
                   {vehicle.vin}
                 </TableCell>
                 <TableCell className="text-foreground font-medium">
                   {vehicle.eco_number || '—'}
                 </TableCell>
-                <TableCell className="text-muted-foreground">
+                <TableCell className="text-foreground">
                   {vehicle.plate || '—'}
                 </TableCell>
                 <TableCell>

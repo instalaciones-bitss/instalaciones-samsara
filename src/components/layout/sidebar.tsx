@@ -19,12 +19,12 @@ export default function Sidebar() {
   return (
     <aside className="border-surface-border bg-surface-low sticky top-0 flex h-screen w-64 flex-col border-r p-6">
       <div className="mb-10 flex items-center gap-2 px-2">
-        <div className="bg-surface-mid text-brand-green ring-surface-border flex h-8 w-8 items-center justify-center rounded-lg font-bold ring-1">
+        <div className="bg-surface-mid text-success ring-surface-border flex h-8 w-8 items-center justify-center rounded-lg font-bold ring-1">
           S
         </div>
         <h2 className="text-xl font-bold tracking-tighter text-white uppercase italic">
           Samsara
-          <span className="ml-0.5 font-light text-zinc-400 not-italic">
+          <span className="text-muted-foreground ml-0.5 font-light not-italic">
             Mgmt
           </span>
         </h2>
@@ -35,9 +35,9 @@ export default function Sidebar() {
           <Link
             key={item.name}
             href={item.href}
-            className="group hover:bg-surface-high flex items-center gap-3 rounded-xl px-3 py-2.5 text-zinc-400 transition-all hover:text-white"
+            className="group hover:bg-surface-high text-muted-foreground flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all hover:text-white"
           >
-            <item.icon className="group-hover:text-brand-green h-5 w-5 transition-colors" />
+            <item.icon className="group-hover:text-success h-5 w-5 transition-colors" />
             <span className="text-sm font-medium">{item.name}</span>
           </Link>
         ))}
@@ -47,7 +47,7 @@ export default function Sidebar() {
         <form action={signOut}>
           <button
             type="submit"
-            className="group hover:bg-danger/10 hover:text-danger flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-zinc-400 transition-all"
+            className="group hover:bg-danger/10 hover:text-danger text-muted-foreground flex w-full items-center gap-3 rounded-xl px-3 py-2.5 transition-all"
           >
             <LogOut className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
             <span className="text-sm font-medium">Cerrar Sesión</span>
