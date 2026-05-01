@@ -1,23 +1,8 @@
-import { QueryData, SupabaseClient } from '@supabase/supabase-js'
+import { SupabaseClient } from '@supabase/supabase-js'
 import { Database, TablesInsert } from './database.types'
 
-// 1. Definimos el tipo del cliente pero vinculado a TU base de datos
-// Esto le dice a TS: "Este cliente conoce mis tablas"
-type Client = SupabaseClient<Database>
-
-// 2. Creamos el mock usando el tipo real 'Client'
-// Ahora TS sí sabe qué hay dentro de .from('vehicles')
-const supabase = {} as Client
-
-// 3. Definimos la consulta.
-// Importante: Debe ser idéntica a la que usas en page.tsx
-const vehicleQuery = supabase.from('vehicles').select(`
-    id, vin, plate, eco_number, status, installed_at, technician_id,
-    technicians ( name )
-  `)
-
-// 4. ¡Magia! QueryData ahora sí puede leer las columnas
-export type VehicleFromList = QueryData<typeof vehicleQuery>[number]
+// Solo tipos, nada de "const" o ejecuciones
+export type Client = SupabaseClient<Database>
 
 // Otros tipos que ya teníamos (estos no fallan)
 export type Tables<T extends keyof Database['public']['Tables']> =
@@ -39,6 +24,10 @@ export type Enums<T extends keyof Database['public']['Enums']> =
 export type ProjectStatus = Enums<'project_status'>
 export type VehicleStatus = Enums<'vehicle_status'>
 
+export type VehicleFromList = Tables<'vehicles'> & {
+  technicians: { name: string } | null
+}
+
 // El contrato para los proyectos del Dashboard
 export type ProjectSummary = Views<'project_details'>
 
@@ -54,3 +43,25 @@ export type ActionResponse = {
 
 // Tipo para insertar un proyecto (usado en la Action)
 export type ProjectInsert = TablesInsert<'projects'>
+
+export const PROJECT_STATUS_THEME: Record<
+  ProjectStatus,
+  { label: string; className: string }
+> = {
+  pendiente: {
+    label: 'Pendiente',
+    className: 'bg-surface-high text-muted-foreground',
+  },
+  activo: {
+    label: 'Activo',
+    className: 'bg-success/20 text-success',
+  },
+  pausado: {
+    label: 'Pausado',
+    className: 'bg-warning/20 text-warning',
+  },
+  finalizado: {
+    label: 'Finalizado',
+    className: 'bg-brand-gradient text-white border-none',
+  },
+}

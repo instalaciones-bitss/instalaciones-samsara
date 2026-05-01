@@ -1,5 +1,10 @@
 import { getAuthSession } from '@/lib/supabase/server'
-import { ProjectSummary } from '@/types/app.types'
+import { cn } from '@/lib/utils'
+import {
+  PROJECT_STATUS_THEME,
+  ProjectStatus,
+  ProjectSummary,
+} from '@/types/app.types'
 import Link from 'next/link'
 
 export default async function DashboardPage() {
@@ -69,13 +74,14 @@ export default async function DashboardPage() {
                 {project.name}
               </h3>
               <span
-                className={`rounded-full px-2.5 py-0.5 text-xs font-bold uppercase ${
-                  project.status === 'activo'
-                    ? 'bg-success/20 text-success'
-                    : 'bg-surface-high text-muted-foreground'
-                }`}
+                className={cn(
+                  'rounded-full border px-2.5 py-0.5 text-xs font-bold uppercase',
+                  PROJECT_STATUS_THEME[project.status as ProjectStatus]
+                    ?.className
+                )}
               >
-                {project.status}
+                {PROJECT_STATUS_THEME[project.status as ProjectStatus]?.label ||
+                  project.status}
               </span>
             </div>
 
