@@ -12,8 +12,18 @@ DROP TABLE IF EXISTS public.device_models;
 DROP TABLE IF EXISTS public.clients;
 DROP TABLE IF EXISTS public.profiles;
 
+-- IMPORTANTE: Borrar tipos personalizados para permitir re-ejecución
+DROP TYPE IF EXISTS public.project_status;
+DROP TYPE IF EXISTS public.vehicle_status;
+
 -- ==========================================
--- 2. TABLAS DE CATÁLOGO Y USUARIOS
+-- 2. TIPOS PERSONALIZADOS (ENUMS) - Definidos al inicio
+-- ==========================================
+CREATE TYPE public.project_status AS ENUM ('pendiente', 'activo', 'pausado', 'finalizado');
+CREATE TYPE public.vehicle_status AS ENUM ('pendiente', 'instalado', 'problema');
+
+-- ==========================================
+-- 3. TABLAS DE CATÁLOGO Y USUARIOS
 -- ==========================================
 
 CREATE TABLE public.profiles (
@@ -50,68 +60,56 @@ CREATE TABLE public.technicians (
 );
 
 -- ==========================================
--- 3. TABLAS OPERATIVAS (Proyectos y Unidades)
+-- 4. TABLAS OPERATIVAS (Proyectos y Unidades)
 -- ==========================================
 
 CREATE TABLE public.projects (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     client_id uuid REFERENCES public.clients(id),
+    pm_id uuid NOT NULL REFERENCES public.profiles(id), -- Añadido directamente aquí
     name text NOT NULL,
     total_units_expected integer DEFAULT 0,
     contact_name text,
     contact_phone text,
     drive_project_link text,
     default_device_model_ids uuid[] DEFAULT '{}',
-    -- Status de proyecto ampliado
-    status text DEFAULT 'pendiente' CHECK (status IN ('pendiente', 'activo', 'pausado', 'finalizado')),
+    status public.project_status DEFAULT 'pendiente', -- Usando el ENUM directamente
     created_at timestamptz DEFAULT now(),
     CONSTRAINT projects_pkey PRIMARY KEY (id)
 );
 
--- VEHÍCULOS: Rediseñado para Importación de Excel y Control de Oficina
 CREATE TABLE public.vehicles (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     project_id uuid REFERENCES public.projects(id) ON DELETE CASCADE,
     technician_id uuid REFERENCES public.technicians(id),
-    
-    -- Identificación (Ancla: VIN obligatorio, los demás opcionales)
     vin text NOT NULL, 
     plate text,
-    eco_number text, -- Añadido: Clave para personal de oficina
-    
-    -- Datos Técnicos del Vehículo (Opcionales para el Excel)
+    eco_number text, 
     brand text,
     model text,
     year integer,
     city text,
-    
-    -- Estados Operativos Reales
-    status text DEFAULT 'pendiente' CHECK (status IN ('pendiente', 'instalado', 'problema')),
-    
+    status public.vehicle_status DEFAULT 'pendiente', -- Usando el ENUM directamente
     installed_at timestamptz,
     notes text,
     created_at timestamptz DEFAULT now(),
-    
     CONSTRAINT vehicles_pkey PRIMARY KEY (id),
-    -- CLAVE: Evita duplicar el mismo VIN en el mismo proyecto al re-importar el Excel
     CONSTRAINT vehicles_vin_project_unique UNIQUE (vin, project_id)
 );
 
--- DISPOSITIVOS: Mantenemos la relación 1:N (Samsara suele llevar VG + AG + Accesorios)
 CREATE TABLE public.devices (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     vehicle_id uuid REFERENCES public.vehicles(id) ON DELETE CASCADE,
     device_model_id uuid REFERENCES public.device_models(id),
     serial_number text, 
     created_at timestamptz DEFAULT now(),
-    CONSTRAINT devices_pkey PRIMARY KEY (id)
+    CONSTRAINT devices_pkey PRIMARY KEY (id),
+    -- Constraint única integrada
+    CONSTRAINT unique_vehicle_device UNIQUE (vehicle_id, device_model_id)
 );
 
-ALTER TABLE public.devices 
-ADD CONSTRAINT unique_vehicle_device UNIQUE (vehicle_id, device_model_id);
-
 -- ==========================================
--- 4. INTELIGENCIA Y AUTOMATIZACIÓN
+-- 5. INTELIGENCIA Y VISTAS (Al final, con tablas listas)
 -- ==========================================
 
 CREATE OR REPLACE VIEW public.project_details
@@ -120,11 +118,9 @@ SELECT
     p.*,
     c.name as client_name,
     c.samsara_user,
-    -- Contamos únicamente los que están como 'instalado'
     (SELECT COUNT(*) 
      FROM public.vehicles v 
      WHERE v.project_id = p.id AND v.status = 'instalado') as units_installed,
-    -- Cálculo de progreso basado solo en 'instalado'
     CASE 
         WHEN p.total_units_expected = 0 THEN 0
         ELSE ROUND(
@@ -137,7 +133,10 @@ SELECT
 FROM public.projects p
 JOIN public.clients c ON p.client_id = c.id;
 
--- Funciones y Triggers (Sin cambios, funcionan perfecto)
+-- ==========================================
+-- 6. AUTOMATIZACIÓN Y SEGURIDAD
+-- ==========================================
+
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
@@ -151,10 +150,7 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
--- ==========================================
--- 5. SEGURIDAD (RLS)
--- ==========================================
-
+-- RLS
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.clients ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;

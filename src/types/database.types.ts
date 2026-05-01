@@ -123,7 +123,8 @@ export type Database = {
           drive_project_link: string | null
           id: string
           name: string
-          status: string | null
+          pm_id: string
+          status: Database["public"]["Enums"]["project_status"] | null
           total_units_expected: number | null
         }
         Insert: {
@@ -135,7 +136,8 @@ export type Database = {
           drive_project_link?: string | null
           id?: string
           name: string
-          status?: string | null
+          pm_id: string
+          status?: Database["public"]["Enums"]["project_status"] | null
           total_units_expected?: number | null
         }
         Update: {
@@ -147,7 +149,8 @@ export type Database = {
           drive_project_link?: string | null
           id?: string
           name?: string
-          status?: string | null
+          pm_id?: string
+          status?: Database["public"]["Enums"]["project_status"] | null
           total_units_expected?: number | null
         }
         Relationships: [
@@ -156,6 +159,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projects_pm_id_fkey"
+            columns: ["pm_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -202,7 +212,7 @@ export type Database = {
           notes: string | null
           plate: string | null
           project_id: string | null
-          status: string | null
+          status: Database["public"]["Enums"]["vehicle_status"] | null
           technician_id: string | null
           vin: string
           year: number | null
@@ -218,7 +228,7 @@ export type Database = {
           notes?: string | null
           plate?: string | null
           project_id?: string | null
-          status?: string | null
+          status?: Database["public"]["Enums"]["vehicle_status"] | null
           technician_id?: string | null
           vin: string
           year?: number | null
@@ -234,7 +244,7 @@ export type Database = {
           notes?: string | null
           plate?: string | null
           project_id?: string | null
-          status?: string | null
+          status?: Database["public"]["Enums"]["vehicle_status"] | null
           technician_id?: string | null
           vin?: string
           year?: number | null
@@ -276,9 +286,10 @@ export type Database = {
           drive_project_link: string | null
           id: string | null
           name: string | null
+          pm_id: string | null
           progress_percentage: number | null
           samsara_user: string | null
-          status: string | null
+          status: Database["public"]["Enums"]["project_status"] | null
           total_units_expected: number | null
           units_installed: number | null
         }
@@ -290,6 +301,13 @@ export type Database = {
             referencedRelation: "clients"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "projects_pm_id_fkey"
+            columns: ["pm_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
@@ -297,7 +315,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      project_status: "pendiente" | "activo" | "pausado" | "finalizado"
+      vehicle_status: "pendiente" | "instalado" | "problema"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -424,6 +443,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      project_status: ["pendiente", "activo", "pausado", "finalizado"],
+      vehicle_status: ["pendiente", "instalado", "problema"],
+    },
   },
 } as const

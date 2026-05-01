@@ -1,96 +1,58 @@
--- ==========================================
--- SEED DATA: Sistema de Gestión BITSS
--- ==========================================
+-- 1. CLIENTES (Fuera del bloque para asegurar que entren)
+INSERT INTO public.clients (name, samsara_user, drive_folder_link)
+VALUES 
+('Bimbo Logística MX', 'bimbo_admin_2026', 'https://drive.google.com/drive/folders/bimbo2026'),
+('Femsa Distribución', 'femsa_ops', 'https://drive.google.com/drive/folders/femsa2026'),
+('DHL Express México', 'dhl_samsara_mgr', 'https://drive.google.com/drive/folders/dhl2026')
+ON CONFLICT DO NOTHING;
 
--- 1. Limpiar datos previos en orden inverso de jerarquía
-TRUNCATE public.devices, public.vehicles, public.projects, public.technicians, public.device_models, public.clients RESTART IDENTITY CASCADE;
-
--- 2. Insertar Catálogo de Modelos (Con la nueva columna has_serial)
+-- 2. MODELOS DE DISPOSITIVOS
 INSERT INTO public.device_models (model_name, has_serial)
 VALUES 
-('Samsara VG54', true),          -- GPS Principal
-('Samsara CM32 (Cámara)', true),  -- Cámara
-('Samsara AG26 (Caja)', true),    -- Rastreador Activos
-('Botón de Pánico', false),       -- Accesorio (Sin serie)
-('Sensor de Puerta', false),      -- Accesorio (Sin serie)
-('Lector de Conductor', false);   -- Accesorio (Sin serie)
+('Samsara VG55 (5G)', true),
+('Samsara AG52 (Solar)', true),
+('Camera CM32 AI', true),
+('Sensor Termo Pro', false)
+ON CONFLICT (model_name) DO NOTHING;
 
--- 3. Insertar Clientes
-INSERT INTO public.clients (name, samsara_user)
+-- 3. TÉCNICOS
+INSERT INTO public.technicians (name, phone, city, company_name, is_certified, is_active)
 VALUES 
-('Transportes Internacionales SA', 'admin@tisa.com'),
-('Logística Terrestre MX', 'fleet@logmx.com');
+('Ricardo Alarcón', '5511223344', 'CDMX', 'Instala-Red', true, true),
+('Sofía Méndez', '8122334455', 'Monterrey', 'Freelance Tech', true, true),
+('Marcos Uribe', '3399887766', 'Guadalajara', 'Bitss Partner', false, true)
+ON CONFLICT DO NOTHING;
 
--- 4. Insertar Técnicos
-INSERT INTO public.technicians (name, city, company_name, is_certified)
-VALUES 
-('Roberto Sánchez', 'Monterrey', 'BITSS Oficial', true),
-('Claudia Herrera', 'CDMX', 'Instalaciones Externas', true),
-('Miguel Ángel', 'Guadalajara', 'BITSS Oficial', false);
+-- 4. DATOS OPERATIVOS (Proyectos, Vehículos, Dispositivos)
+DO $$
+DECLARE
+    v_pm_id uuid := (SELECT id FROM public.profiles LIMIT 1);
+    v_client_id uuid := (SELECT id FROM public.clients LIMIT 1);
+    v_model_vg55 uuid := (SELECT id FROM public.device_models WHERE model_name = 'Samsara VG55 (5G)');
+    v_model_cam uuid := (SELECT id FROM public.device_models WHERE model_name = 'Camera CM32 AI');
+    v_tech_id uuid := (SELECT id FROM public.technicians LIMIT 1);
+    v_project_id uuid;
+    v_vehicle_id uuid;
+BEGIN
+    -- Si después del Paso 1 v_pm_id sigue siendo NULL, ahora sí lanzaremos un ERROR real
+    IF v_pm_id IS NULL THEN
+        RAISE EXCEPTION 'La tabla public.profiles está vacía. Ejecuta primero el INSERT desde auth.users.';
+    END IF;
 
--- 5. Insertar Proyectos (Asignando el Kit Predeterminado)
--- Proyecto A: Kit Completo (VG54 + Cámara + Botón)
-INSERT INTO public.projects (client_id, name, total_units_expected, status, default_device_model_ids)
-SELECT 
-    id as client_id, 
-    'Instalación Flota Pesada 2024', 
-    5, 
-    'activo',
-    -- Seleccionamos modelos específicos para el array
-    ARRAY(
-        SELECT id FROM public.device_models 
-        WHERE model_name IN ('Samsara VG54', 'Samsara CM32 (Cámara)', 'Botón de Pánico')
-    )::uuid[]
-FROM public.clients 
-WHERE name = 'Transportes Internacionales SA'
-LIMIT 1;
+    -- Insertar Proyecto
+    INSERT INTO public.projects (name, client_id, pm_id, total_units_expected, status, default_device_model_ids)
+    VALUES ('Renovación Flota 2026', v_client_id, v_pm_id, 50, 'activo', ARRAY[v_model_vg55, v_model_cam])
+    RETURNING id INTO v_project_id;
 
--- Proyecto B: Kit Básico (Sólo VG54)
-INSERT INTO public.projects (client_id, name, total_units_expected, status, default_device_model_ids)
-SELECT 
-    id as client_id, 
-    'Rastreo Utilitarios', 
-    3, 
-    'pendiente',
-    ARRAY(SELECT id FROM public.device_models WHERE model_name = 'Samsara VG54')::uuid[]
-FROM public.clients 
-WHERE name = 'Logística Terrestre MX'
-LIMIT 1;
+    -- Insertar Vehículo
+    INSERT INTO public.vehicles (project_id, technician_id, vin, plate, eco_number, status, installed_at)
+    VALUES (v_project_id, v_tech_id, 'VIN-ABC-123-2026', 'MX-2026', 'ECO-101', 'instalado', now())
+    RETURNING id INTO v_vehicle_id;
 
--- 6. Insertar Vehículos de Prueba
--- Vehículo 1: Pendiente (Sin técnico asignado)
-INSERT INTO public.vehicles (project_id, vin, plate, eco_number, brand, model, year, status)
-SELECT 
-    id, 'VIN-TISA-001', 'P-11-AA', 'ECO-01', 'Kenworth', 'T680', 2024, 'pendiente'
-FROM public.projects WHERE name = 'Instalación Flota Pesada 2024';
+    -- Insertar Dispositivos
+    INSERT INTO public.devices (vehicle_id, device_model_id, serial_number)
+    VALUES 
+    (v_vehicle_id, v_model_vg55, 'SN-GPS-999'),
+    (v_vehicle_id, v_model_cam, 'SN-CAM-888');
 
--- Vehículo 2: Instalado (Con técnico y FECHA)
-INSERT INTO public.vehicles (project_id, vin, plate, eco_number, brand, model, year, status, technician_id, installed_at)
-SELECT 
-    p.id, 'VIN-TISA-002', 'P-22-BB', 'ECO-02', 'Freightliner', 'Cascadia', 2023, 'instalado',
-    (SELECT id FROM public.technicians WHERE name = 'Roberto Sánchez'),
-    now() - interval '2 days'
-FROM public.projects p WHERE name = 'Instalación Flota Pesada 2024';
-
--- Vehículo 3: Problema
-INSERT INTO public.vehicles (project_id, vin, plate, eco_number, brand, model, year, status, notes)
-SELECT 
-    id, 'VIN-TISA-ERR', 'P-ERR-01', 'ECO-ERR', 'Internacional', 'ProStar', 2022, 'problema', 
-    'Unidad en taller mecánico por falla de motor, no disponible para instalación.'
-FROM public.projects WHERE name = 'Instalación Flota Pesada 2024';
-
--- 7. Insertar Dispositivos ya registrados (Para probar la EDICIÓN)
--- Registramos las series para el Vehículo 2 (ECO-02)
-INSERT INTO public.devices (vehicle_id, device_model_id, serial_number)
-SELECT 
-    v.id, 
-    m.id, 
-    CASE 
-        WHEN m.model_name = 'Samsara VG54' THEN 'VG-888-222-111'
-        WHEN m.model_name = 'Samsara CM32 (Cámara)' THEN 'CM-999-000-XXX'
-        ELSE NULL -- El botón de pánico no lleva serie
-    END
-FROM public.vehicles v
-CROSS JOIN public.device_models m
-WHERE v.eco_number = 'ECO-02' 
-AND m.model_name IN ('Samsara VG54', 'Samsara CM32 (Cámara)', 'Botón de Pánico');
+END $$;

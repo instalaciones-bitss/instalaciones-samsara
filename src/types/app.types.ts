@@ -1,5 +1,5 @@
 import { QueryData, SupabaseClient } from '@supabase/supabase-js'
-import { Database } from './database.types'
+import { Database, TablesInsert } from './database.types'
 
 // 1. Definimos el tipo del cliente pero vinculado a TU base de datos
 // Esto le dice a TS: "Este cliente conoce mis tablas"
@@ -32,6 +32,13 @@ export type DeviceModelBasic = Pick<
 export type Views<T extends keyof Database['public']['Views']> =
   Database['public']['Views'][T]['Row']
 
+// --- NUEVO HELPER PARA ENUMS ---
+export type Enums<T extends keyof Database['public']['Enums']> =
+  Database['public']['Enums'][T]
+
+export type ProjectStatus = Enums<'project_status'>
+export type VehicleStatus = Enums<'vehicle_status'>
+
 // El contrato para los proyectos del Dashboard
 export type ProjectSummary = Views<'project_details'>
 
@@ -44,3 +51,6 @@ export type ActionResponse = {
   errors?: Record<string, string[]> // Para errores específicos de campos (Zod)
   success?: boolean // Opcional: Para indicar éxito sin redirección
 } | null
+
+// Tipo para insertar un proyecto (usado en la Action)
+export type ProjectInsert = TablesInsert<'projects'>
