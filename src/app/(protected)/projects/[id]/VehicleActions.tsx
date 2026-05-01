@@ -11,7 +11,7 @@ import {
   Loader2,
 } from 'lucide-react'
 import {
-  VehicleFromList,
+  VehicleWithTechnician,
   TechnicianBasic,
   DeviceModelBasic,
 } from '@/types/app.types'
@@ -51,7 +51,7 @@ import { getVehicleInstallationData, updateVehicleStatus } from './actions'
 import { cn } from '@/lib/utils'
 
 interface VehicleActionsProps {
-  vehicle: VehicleFromList
+  vehicle: VehicleWithTechnician
   projectId: string
   projectDevices: DeviceModelBasic[]
   technicians: TechnicianBasic[]

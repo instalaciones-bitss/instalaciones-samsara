@@ -13,7 +13,7 @@ import { VehicleActions } from './VehicleActions'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { cn } from '@/lib/utils'
-import { VehicleFromList, VehicleStatus } from '@/types/app.types'
+import { VehicleWithTechnician, VehicleStatus } from '@/types/app.types'
 
 export default async function ProjectDetailPage({
   params,
@@ -149,7 +149,7 @@ export default async function ProjectDetailPage({
                   </TableCell>
                   <TableCell className="text-right">
                     <VehicleActions
-                      vehicle={vehicleData as VehicleFromList}
+                      vehicle={vehicleData as VehicleWithTechnician}
                       projectId={project.id}
                       projectDevices={projectDevices}
                       technicians={technicians}

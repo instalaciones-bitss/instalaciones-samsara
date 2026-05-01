@@ -24,7 +24,7 @@ export type Enums<T extends keyof Database['public']['Enums']> =
 export type ProjectStatus = Enums<'project_status'>
 export type VehicleStatus = Enums<'vehicle_status'>
 
-export type VehicleFromList = Tables<'vehicles'> & {
+export type VehicleWithTechnician = Tables<'vehicles'> & {
   technicians: { name: string } | null
 }
 
