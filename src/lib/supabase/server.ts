@@ -32,3 +32,18 @@ export const createClient = async () => {
     }
   )
 }
+
+export async function getAuthSession() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
+
+  // Si hay un error de Supabase o no hay usuario, lanzamos un error descriptivo
+  if (error || !user) {
+    throw new Error('Unauthorized: Sesión inválida o expirada')
+  }
+
+  return { supabase, user }
+}

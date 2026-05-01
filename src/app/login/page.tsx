@@ -5,10 +5,14 @@ import { login } from './actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-react'
+import { ActionResponse } from '@/types/app.types' // [Lógica: Importamos el tipo centralizado]
 
 export default function LoginPage() {
-  // Hook de conexión con la acción de login
-  const [state, formAction, isPending] = useActionState(login, null)
+  // 1. Lógica: Tipamos el hook para que 'state' reconozca .errors y .message
+  const [state, formAction, isPending] = useActionState<
+    ActionResponse,
+    FormData
+  >(login, null)
 
   return (
     <div className="bg-surface-low flex min-h-screen items-center justify-center p-4">
@@ -21,7 +25,6 @@ export default function LoginPage() {
               MGMT
             </span>
           </h1>
-          {/* text-muted-foreground -> text-muted-foreground (corresponde a tu clase .text-muted) */}
           <p className="text-muted-foreground text-sm">
             Ingresa al panel de control
           </p>
@@ -33,7 +36,7 @@ export default function LoginPage() {
             <Input
               name="email"
               type="email"
-              placeholder="correo@bitss.mx"
+              placeholder="Correo electrónico"
               disabled={isPending}
               className={
                 state?.errors?.email

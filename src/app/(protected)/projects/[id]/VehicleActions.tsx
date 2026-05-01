@@ -10,8 +10,11 @@ import {
   AlertCircle,
   Loader2,
 } from 'lucide-react'
-import { Tables } from '@/types/database.types'
-
+import {
+  VehicleFromList,
+  TechnicianBasic,
+  DeviceModelBasic,
+} from '@/types/app.types'
 // Componentes UI
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -48,10 +51,10 @@ import { getVehicleInstallationData, updateVehicleStatus } from './actions'
 import { cn } from '@/lib/utils'
 
 interface VehicleActionsProps {
-  vehicle: Tables<'vehicles'>
+  vehicle: VehicleFromList
   projectId: string
-  projectDevices: Tables<'device_models'>[]
-  technicians: Tables<'technicians'>[]
+  projectDevices: DeviceModelBasic[]
+  technicians: TechnicianBasic[]
 }
 
 export function VehicleActions({
@@ -75,14 +78,29 @@ export function VehicleActions({
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
 
   const handlePrepareInstallation = async () => {
+    setDeviceSerialsByModelId({})
+
     try {
-      const installed = await getVehicleInstallationData(vehicle.id)
+      const result = await getVehicleInstallationData(vehicle.id)
+
+      // 2. Manejo de la respuesta semántica
+      if (!result.success) {
+        alert(result.error)
+        return
+      }
+
+      // 3. Si llegamos aquí, TS sabe que result.data existe
       const initialSerials: Record<string, string> = {}
-      projectDevices.forEach((m) => (initialSerials[m.id] = ''))
-      installed.forEach((d) => {
-        if (d.device_model_id)
-          initialSerials[d.device_model_id] = d.serial_number ?? ''
+      projectDevices.forEach((m) => {
+        initialSerials[m.id] = ''
       })
+
+      result.data?.forEach((d) => {
+        if (d.device_model_id) {
+          initialSerials[d.device_model_id] = d.serial_number ?? ''
+        }
+      })
+
       setDeviceSerialsByModelId(initialSerials)
       setSelectedTech(vehicle.technician_id ?? '')
       setDate(
@@ -90,7 +108,9 @@ export function VehicleActions({
       )
       setIsDialogOpen(true)
     } catch (e) {
-      alert('No se pudieron cargar los datos de los dispositivos.')
+      // 4. Red de seguridad para errores de red del cliente
+      console.error('Error crítico:', e)
+      alert('Error de conexión con el servidor')
     }
   }
 

@@ -1,8 +1,9 @@
-'use server' // 1. Indica que este código solo se ejecuta en el servidor
+'use server'
 
-import { createClient as createServerClient } from '@/lib/supabase/server' // 2. Importa el cliente de Supabase para servidor
-import { redirect } from 'next/navigation' // 3. Importa la función para redireccionar páginas
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
 import z from 'zod'
+import { ActionResponse } from '@/types/app.types'
 
 const loginSchema = z.object({
   email: z.email({
@@ -13,29 +14,15 @@ const loginSchema = z.object({
     .min(6, { message: 'La contraseña debe tener al menos 6 caracteres.' }),
 })
 
-export type FormState = {
-  error?: string
-  errors?: {
-    email?: string[]
-    password?: string[]
-  }
-} | null
-
-// Un formato estándar y limpio para todas tus acciones
-export type ActionResponse = {
-  message?: string // Errores generales (ej: "Credenciales inválidas")
-  errors?: Record<string, string[]> // Errores de Zod (ej: { email: ["Formato inválido"] })
-} | null
-
 export async function login(
   _prevState: ActionResponse,
   formData: FormData
 ): Promise<ActionResponse> {
-  const supabase = await createServerClient()
+  const supabase = await createClient()
   const rawData = Object.fromEntries(formData.entries())
   const validatedFields = loginSchema.safeParse(rawData)
 
-  // Si Zod falla
+  // 1. Validación de campos (Zod)
   if (!validatedFields.success) {
     return {
       errors: z.flattenError(validatedFields.error).fieldErrors,
@@ -44,21 +31,33 @@ export async function login(
 
   const { email, password } = validatedFields.data
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password })
+  try {
+    // 2. Intento de inicio de sesión
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
 
-  // Si Supabase falla
-  if (error) {
+    if (error) {
+      return {
+        message: 'Credenciales no válidas. Revisa tu correo y contraseña.',
+      }
+    }
+  } catch (e) {
+    // 3. Captura de errores inesperados (red, etc.)
     return {
-      message: 'Credenciales no válidas. Revisa tu correo y contraseña.',
+      message: 'Error de conexión. Inténtalo de nuevo más tarde.',
     }
   }
 
+  // 4. Redirección al éxito
   redirect('/')
 }
 
-// Al final de src/app/login/actions.ts
 export async function signOut() {
-  const supabase = await createServerClient() // 1. Creamos el cliente de servidor
-  await supabase.auth.signOut() // 2. Le pedimos a Supabase que invalide la sesión
-  redirect('/login') // 3. Mandamos al usuario de vuelta al inicio
+  const supabase = await createClient()
+
+  await supabase.auth.signOut()
+
+  redirect('/login')
 }

@@ -12,6 +12,8 @@ import { Badge } from '@/components/ui/badge'
 import { VehicleActions } from './VehicleActions'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { cn } from '@/lib/utils'
+import { VehicleFromList } from '@/types/app.types'
 
 export default async function ProjectDetailPage({
   params,
@@ -21,6 +23,7 @@ export default async function ProjectDetailPage({
   const { id } = await params
   const supabase = await createClient()
 
+  // 1. Obtener el proyecto primero para validar existencia
   const { data: project, error } = await supabase
     .from('projects')
     .select(
@@ -32,121 +35,129 @@ export default async function ProjectDetailPage({
           id, vin, plate, eco_number, status, installed_at, technician_id,
           technicians ( name )
         )
-      `
+    `
     )
     .eq('id', id)
     .single()
-
-  const { data: projectDevices } = await supabase
-    .from('device_models')
-    .select('id, model_name, has_serial')
-    .in('id', project?.default_device_model_ids || [])
-
-  const { data: technicians } = await supabase
-    .from('technicians')
-    .select('id, name')
-    .eq('is_active', true)
-    .order('name', { ascending: true })
 
   if (error || !project) {
     notFound()
   }
 
+  // 2. Cargar datos secundarios en paralelo (Ahorra tiempo de carga)
+  const [devicesResponse, techniciansResponse] = await Promise.all([
+    supabase
+      .from('device_models')
+      .select('id, model_name, has_serial')
+      .in('id', project.default_device_model_ids || []),
+    supabase
+      .from('technicians')
+      .select('id, name')
+      .eq('is_active', true)
+      .order('name', { ascending: true }),
+  ])
+
+  const projectDevices = devicesResponse.data || []
+  const technicians = techniciansResponse.data || []
+
   const statusStyles: Record<string, string> = {
-    pendiente: 'bg-surface-high text-muted-foreground hover:bg-surface-high',
-    instalado:
-      'bg-primary/10 text-primary border-primary/20 hover:bg-primary/10',
-    problema: 'bg-danger/10 text-danger border-danger/20 hover:bg-danger/10',
+    pendiente: 'bg-surface-high text-muted-foreground border-transparent',
+    instalado: 'bg-success/10 text-success border-success/20',
+    problema: 'bg-danger/10 text-danger border-danger/20',
   }
 
   return (
-    <div className="space-y-6 p-6">
-      <div>
-        <h1 className="text-foreground text-3xl font-bold tracking-tight">
-          {project.name}
-        </h1>
-        <p>
-          <span className="text-primary">{project.clients?.name}</span>
-        </p>
-        <p className="text-muted-foreground">
-          Unidades registradas: {project.vehicles?.length || 0}
-        </p>
-      </div>
-
-      <div>
-        <h2 className="text-foreground mb-3 text-2xl font-bold tracking-tight">
-          Progreso de Instalación
-        </h2>
-      </div>
-
-      <div className="border-surface-border bg-surface-mid rounded-md border">
+    <div className="space-y-6 p-8">
+      {' '}
+      <header className="flex items-start justify-between">
+        <div>
+          <p className="text-primary text-sm font-semibold tracking-wider uppercase">
+            {project.clients?.name}
+          </p>
+          <h1 className="text-foreground mt-1 text-4xl font-bold tracking-tight">
+            {project.name}
+          </h1>
+          <p className="text-muted-foreground mt-2 text-sm">
+            Total:{' '}
+            <span className="text-foreground font-medium">
+              {project.vehicles?.length || 0}
+            </span>{' '}
+            unidades registradas
+          </p>
+        </div>
+      </header>
+      <div className="border-surface-border bg-surface-mid overflow-hidden rounded-xl border">
         <Table>
-          <TableHeader className="bg-surface-mid">
+          <TableHeader className="bg-surface-high/50">
             <TableRow className="border-surface-border hover:bg-transparent">
-              <TableHead className="text-xs font-bold tracking-wider uppercase">
-                VIN
-              </TableHead>
-              <TableHead className="text-xs font-bold tracking-wider uppercase">
-                Económico
-              </TableHead>
-              <TableHead className="text-xs font-bold tracking-wider uppercase">
-                Placas
-              </TableHead>
-              <TableHead className="text-xs font-bold tracking-wider uppercase">
-                Estatus
-              </TableHead>
-              <TableHead className="text-xs font-bold tracking-wider uppercase">
-                Técnico
-              </TableHead>
-              <TableHead className="text-xs font-bold tracking-wider uppercase">
-                Fecha
-              </TableHead>
+              {[
+                'VIN',
+                'Económico',
+                'Placas',
+                'Estatus',
+                'Técnico',
+                'Fecha',
+              ].map((h) => (
+                <TableHead
+                  key={h}
+                  className="text-muted-foreground text-xs font-bold tracking-wider uppercase"
+                >
+                  {h}
+                </TableHead>
+              ))}
               <TableHead />
             </TableRow>
           </TableHeader>
           <TableBody>
-            {project.vehicles?.map((vehicle) => (
-              <TableRow
-                key={vehicle.id}
-                className="border-surface-border hover:bg-surface-high/30"
-              >
-                <TableCell className="text-foreground font-medium">
-                  {vehicle.vin}
-                </TableCell>
-                <TableCell className="text-foreground font-medium">
-                  {vehicle.eco_number || '—'}
-                </TableCell>
-                <TableCell className="text-foreground">
-                  {vehicle.plate || '—'}
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant="outline"
-                    className={`capitalize ${statusStyles[vehicle.status ?? 'pendiente']}`}
-                  >
-                    {vehicle.status ?? 'pendiente'}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-foreground font-medium">
-                  {vehicle.technicians?.name || '---'}
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {vehicle.installed_at
-                    ? format(new Date(vehicle.installed_at), 'dd/MM/yyyy', {
-                        locale: es,
-                      })
-                    : '---'}
-                </TableCell>
-                <TableCell>
-                  <VehicleActions
-                    vehicle={vehicle as any}
-                    projectId={project.id}
-                    projectDevices={projectDevices as any}
-                    technicians={technicians as any}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
+            {project.vehicles?.map((vehicle) => {
+              const { technicians: _unused, ...vehicleData } = vehicle
+
+              return (
+                <TableRow
+                  key={vehicle.id}
+                  className="border-surface-border hover:bg-surface-high/30 transition-colors"
+                >
+                  <TableCell className="text-foreground font-mono text-sm">
+                    {vehicle.vin}
+                  </TableCell>
+                  <TableCell className="text-foreground font-medium">
+                    {vehicle.eco_number || '—'}
+                  </TableCell>
+                  <TableCell className="text-foreground">
+                    {vehicle.plate || '—'}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        'font-semibold capitalize',
+                        statusStyles[vehicle.status ?? 'pendiente']
+                      )}
+                    >
+                      {vehicle.status ?? 'pendiente'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-foreground">
+                    {vehicle.technicians?.name || '---'}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground text-sm">
+                    {vehicle.installed_at
+                      ? format(new Date(vehicle.installed_at), 'dd MMM yyyy', {
+                          locale: es,
+                        })
+                      : '---'}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <VehicleActions
+                      vehicle={vehicleData as VehicleFromList}
+                      projectId={project.id}
+                      projectDevices={projectDevices}
+                      technicians={technicians}
+                    />
+                  </TableCell>
+                </TableRow>
+              )
+            })}
           </TableBody>
         </Table>
       </div>

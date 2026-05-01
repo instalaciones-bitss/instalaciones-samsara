@@ -1,19 +1,23 @@
-import { createClient } from '@/lib/supabase/server'
+import { getAuthSession } from '@/lib/supabase/server'
+import { ProjectSummary } from '@/types/app.types'
 import Link from 'next/link'
 
 export default async function DashboardPage() {
-  const supabase = await createClient()
+  // 1. Lógica: Usamos el helper centralizado
+  const { user, supabase } = await getAuthSession()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  let projects: ProjectSummary[] = []
 
-  const { data: projects, error } = await supabase
-    .from('project_details')
-    .select('*')
-    .order('created_at', { ascending: false })
+  // 2. Lógica: Try-catch quirúrgico solo para la consulta
+  try {
+    const { data, error } = await supabase
+      .from('project_details')
+      .select('*')
+      .order('created_at', { ascending: false })
 
-  if (error) {
+    if (error) throw error
+    projects = data || []
+  } catch (error: any) {
     console.error('Error cargando project_details:', error.message)
   }
 
@@ -37,7 +41,7 @@ export default async function DashboardPage() {
         </div>
         <div className="text-right">
           <span className="bg-success/10 text-success ring-success/20 inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset">
-            {projects?.length || 0} Proyectos Activos
+            {projects.length} Proyectos Activos
           </span>
         </div>
       </header>
@@ -48,7 +52,7 @@ export default async function DashboardPage() {
 
       {/* Grid de Proyectos */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {projects?.map((project) => (
+        {projects.map((project) => (
           <Link
             key={project.id}
             href={`/projects/${project.id}`}
@@ -103,7 +107,7 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      {projects?.length === 0 && (
+      {projects.length === 0 && (
         <div className="border-surface-border rounded-2xl border border-dashed py-20 text-center">
           <p className="text-muted-foreground">
             No hay proyectos registrados aún.
