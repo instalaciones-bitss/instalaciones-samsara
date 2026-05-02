@@ -13,7 +13,11 @@ import { VehicleActions } from './VehicleActions'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { cn } from '@/lib/utils'
-import { VehicleWithTechnician, VehicleStatus } from '@/types/app.types'
+import {
+  VehicleWithTechnician,
+  VehicleStatus,
+  VEHICLE_STATUS_THEME,
+} from '@/types/app.types'
 
 export default async function ProjectDetailPage({
   params,
@@ -60,12 +64,6 @@ export default async function ProjectDetailPage({
   const projectDevices = devicesResponse.data || []
   const technicians = techniciansResponse.data || []
 
-  const statusStyles: Record<VehicleStatus, string> = {
-    pendiente: 'bg-surface-high text-muted-foreground border-transparent',
-    instalado: 'bg-success/10 text-success border-success/20',
-    problema: 'bg-danger/10 text-danger border-danger/20',
-  }
-
   return (
     <div className="space-y-6 p-8">
       {' '}
@@ -111,6 +109,8 @@ export default async function ProjectDetailPage({
           <TableBody>
             {project.vehicles?.map((vehicle) => {
               const { technicians: _unused, ...vehicleData } = vehicle
+              const statusTheme =
+                VEHICLE_STATUS_THEME[vehicle.status as VehicleStatus]
 
               return (
                 <TableRow
@@ -131,10 +131,10 @@ export default async function ProjectDetailPage({
                       variant="outline"
                       className={cn(
                         'font-semibold capitalize',
-                        statusStyles[vehicle.status as VehicleStatus]
+                        statusTheme?.className ?? 'bg-surface-high'
                       )}
                     >
-                      {vehicle.status}
+                      {statusTheme?.label ?? vehicle.status}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-foreground">

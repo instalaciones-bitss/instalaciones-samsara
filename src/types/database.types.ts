@@ -287,6 +287,7 @@ export type Database = {
           id: string | null
           name: string | null
           pm_id: string | null
+          pm_name: string | null
           progress_percentage: number | null
           samsara_user: string | null
           status: Database["public"]["Enums"]["project_status"] | null

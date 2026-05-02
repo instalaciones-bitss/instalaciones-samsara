@@ -35,10 +35,11 @@ export type ProjectSummary = Views<'project_details'>
  * Contrato estándar para Server Actions que manejan formularios.
  * Se usa con el hook useActionState en el cliente.
  */
-export type ActionResponse = {
-  message?: string // Para errores globales (ej: "Credenciales inválidas")
-  errors?: Record<string, string[]> // Para errores específicos de campos (Zod)
-  success?: boolean // Opcional: Para indicar éxito sin redirección
+export type ActionResponse<T = Record<string, unknown>> = {
+  message?: string
+  errors?: Record<string, string[]>
+  success?: boolean
+  inputs?: T // <-- Aquí usamos el genérico T
 } | null
 
 // Tipo para insertar un proyecto (usado en la Action)
@@ -65,3 +66,28 @@ export const PROJECT_STATUS_THEME: Record<
     className: 'bg-brand-gradient text-white border-none',
   },
 }
+
+export const VEHICLE_STATUS_THEME: Record<
+  VehicleStatus,
+  { label: string; className: string }
+> = {
+  pendiente: {
+    label: 'Pendiente',
+    className: 'bg-surface-high text-muted-foreground border-transparent',
+  },
+  instalado: {
+    label: 'Instalado',
+    className: 'bg-success/10 text-success border-success/20',
+  },
+  problema: {
+    label: 'Problema',
+    className: 'bg-danger/10 text-danger border-danger/20',
+  },
+}
+
+export type ClientCatalog = Pick<Tables<'clients'>, 'id' | 'name'>
+export type PMCatalog = Pick<Tables<'profiles'>, 'id' | 'full_name'>
+export type DeviceModelCatalog = Pick<
+  Tables<'device_models'>,
+  'id' | 'model_name'
+>

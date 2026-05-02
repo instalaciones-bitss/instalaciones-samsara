@@ -118,6 +118,7 @@ SELECT
     p.*,
     c.name as client_name,
     c.samsara_user,
+    prof.full_name as pm_name, -- 1. Agregamos el nombre completo del PM
     (SELECT COUNT(*) 
      FROM public.vehicles v 
      WHERE v.project_id = p.id AND v.status = 'instalado') as units_installed,
@@ -131,7 +132,8 @@ SELECT
         )
     END as progress_percentage
 FROM public.projects p
-JOIN public.clients c ON p.client_id = c.id;
+JOIN public.clients c ON p.client_id = c.id
+LEFT JOIN public.profiles prof ON p.pm_id = prof.id; -- 2. Vinculamos con profiles
 
 -- ==========================================
 -- 6. AUTOMATIZACIÓN Y SEGURIDAD

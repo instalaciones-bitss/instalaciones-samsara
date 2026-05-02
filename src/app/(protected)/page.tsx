@@ -1,5 +1,5 @@
+import { Badge } from '@/components/ui/badge'
 import { getAuthSession } from '@/lib/supabase/server'
-import { cn } from '@/lib/utils'
 import {
   PROJECT_STATUS_THEME,
   ProjectStatus,
@@ -57,60 +57,68 @@ export default async function DashboardPage() {
 
       {/* Grid de Proyectos */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {projects.map((project) => (
-          <Link
-            key={project.id}
-            href={`/projects/${project.id}`}
-            className="group border-surface-border bg-surface-mid hover:border-surface-high relative overflow-hidden rounded-2xl border p-6 shadow-sm transition-all"
-          >
-            <div
-              className="pointer-events-none absolute inset-0 opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-10"
-              style={{
-                backgroundImage: 'var(--background-image-brand-gradient)',
-              }}
-            />
-            <div className="mb-4 flex items-start justify-between">
-              <h3 className="group-hover:text-primary text-xl font-semibold transition-colors">
-                {project.name}
-              </h3>
-              <span
-                className={cn(
-                  'rounded-full border px-2.5 py-0.5 text-xs font-bold uppercase',
-                  PROJECT_STATUS_THEME[project.status as ProjectStatus]
-                    ?.className
-                )}
-              >
-                {PROJECT_STATUS_THEME[project.status as ProjectStatus]?.label ||
-                  project.status}
-              </span>
-            </div>
+        {projects.map((project) => {
+          const statusTheme =
+            PROJECT_STATUS_THEME[project.status as ProjectStatus]
 
-            <p className="text-muted-foreground mb-6 line-clamp-1 text-sm">
-              {project.client_name}
-            </p>
+          return (
+            <Link
+              key={project.id}
+              href={`/projects/${project.id}`}
+              className="group border-surface-border bg-surface-mid hover:border-surface-high relative overflow-hidden rounded-2xl border p-6 shadow-sm transition-all"
+            >
+              <div
+                className="pointer-events-none absolute inset-0 opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-10"
+                style={{
+                  backgroundImage: 'var(--background-image-brand-gradient)',
+                }}
+              />
+              <div className="mb-4 flex items-start justify-between">
+                <h3 className="group-hover:text-primary text-xl font-semibold transition-colors">
+                  {project.name}
+                </h3>
+                <Badge
+                  variant="outline"
+                  className={statusTheme?.className ?? 'bg-surface-high'}
+                >
+                  {statusTheme?.label ?? project.status}
+                </Badge>
+              </div>
 
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">
-                  Progreso de Instalación
-                </span>
-                <span className="text-foreground font-medium">
-                  {project.progress_percentage}%
-                </span>
-              </div>
-              <div className="bg-surface-low h-1.5 w-full overflow-hidden rounded-full">
-                <div
-                  className={`h-full transition-all duration-500 ease-in-out ${getProgressColor(project.progress_percentage ?? 0)}`}
-                  style={{ width: `${project.progress_percentage ?? 0}%` }}
-                />
-              </div>
-              <p className="text-muted-foreground mt-2 text-xs font-medium">
-                {project.units_installed} de {project.total_units_expected}{' '}
-                unidades
+              <p className="text-muted-foreground mb-6 line-clamp-1 text-sm">
+                {project.client_name}
               </p>
-            </div>
-          </Link>
-        ))}
+
+              <p className="text-muted-foreground mb-6 line-clamp-1 text-sm">
+                PM:{' '}
+                <span className="text-foreground font-bold">
+                  {project.pm_name}
+                </span>
+              </p>
+
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">
+                    Progreso de Instalación
+                  </span>
+                  <span className="text-foreground font-medium">
+                    {project.progress_percentage}%
+                  </span>
+                </div>
+                <div className="bg-surface-low h-1.5 w-full overflow-hidden rounded-full">
+                  <div
+                    className={`h-full transition-all duration-500 ease-in-out ${getProgressColor(project.progress_percentage ?? 0)}`}
+                    style={{ width: `${project.progress_percentage ?? 0}%` }}
+                  />
+                </div>
+                <p className="text-muted-foreground mt-2 text-xs font-medium">
+                  {project.units_installed} de {project.total_units_expected}{' '}
+                  unidades
+                </p>
+              </div>
+            </Link>
+          )
+        })}
       </div>
 
       {projects.length === 0 && (

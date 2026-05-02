@@ -9,10 +9,10 @@ export const PROJECT_STATUS_VALUES: [ProjectStatus, ...ProjectStatus[]] = [
   'finalizado',
 ]
 
-// 2. Pre-procesador para campos opcionales: Convierte "" en undefined para que la UI no rompa validaciones.
-const emptyToUndefined = z.preprocess(
-  (val) => (val === '' ? undefined : val),
-  z.string().trim()
+// Convierte "" en undefined y acepta que el resultado sea opcional.
+const optionalString = z.preprocess(
+  (val) => (val === '' || val === null ? undefined : val),
+  z.string().trim().optional()
 )
 
 export const projectSchema = z.object({
@@ -35,11 +35,11 @@ export const projectSchema = z.object({
     .min(1, 'Mínimo 1 unidad'),
 
   // CONTACT_NAME: Usa el helper para ser opcional o ignorar si viene vacío.
-  contact_name: emptyToUndefined.optional(),
+  contact_name: optionalString,
 
   // CONTACT_PHONE: Valida exactamente 10 dígitos si el usuario escribe algo.
   contact_phone: z.preprocess(
-    (val) => (val === '' ? undefined : val),
+    (val) => (val === '' || val === null ? undefined : val),
     z
       .string()
       .regex(/^\d{10}$/, 'El teléfono requiere 10 números')
@@ -48,11 +48,8 @@ export const projectSchema = z.object({
 
   // DRIVE_LINK: En v4 usamos z.url() directamente tras limpiar espacios.
   drive_project_link: z.preprocess(
-    (val) => (typeof val === 'string' ? val.trim() : val),
-    z
-      .url({ message: 'Ingresa un link de Drive válido' })
-      .optional()
-      .or(z.literal(''))
+    (val) => (val === '' || val === null ? undefined : val),
+    z.url('Ingresa un link de Drive válido').optional()
   ),
 
   // STATUS: Validación estricta basada en el array sincronizado de la DB.
