@@ -73,12 +73,14 @@ export async function createProject(
       console.error('Database Error:', error.message)
       return {
         message: 'No se pudo crear el proyecto en la base de datos.',
+        inputs: validatedData,
       }
     }
   } catch (e) {
     // 8. Error inesperado (igual que en tu login/actions.ts)
     return {
       message: 'Ocurrió un error inesperado. Intenta de nuevo.',
+      inputs: validatedData,
     }
   }
 

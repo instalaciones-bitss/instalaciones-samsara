@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState } from 'react'
-import { login } from './actions'
+import { login, LoginInputs } from './actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-react'
@@ -10,9 +10,14 @@ import { ActionResponse } from '@/types/app.types' // [Lógica: Importamos el ti
 export default function LoginPage() {
   // 1. Lógica: Tipamos el hook para que 'state' reconozca .errors y .message
   const [state, formAction, isPending] = useActionState<
-    ActionResponse,
+    ActionResponse<LoginInputs>,
     FormData
   >(login, null)
+
+  const { inputs, errors, message: globalError } = state ?? {}
+  const isInvalid = (field: keyof LoginInputs) => !!errors?.[field]
+  const getVal = (field: keyof LoginInputs) =>
+    inputs?.[field] as string | undefined
 
   return (
     <div className="bg-surface-low flex min-h-screen items-center justify-center p-4">
@@ -38,15 +43,12 @@ export default function LoginPage() {
               type="email"
               placeholder="Correo electrónico"
               disabled={isPending}
-              className={
-                state?.errors?.email
-                  ? 'border-danger focus-visible:ring-danger'
-                  : 'border-surface-border'
-              }
+              defaultValue={getVal('email')}
+              aria-invalid={isInvalid('email')}
             />
-            {state?.errors?.email && (
+            {errors?.email && (
               <p className="text-danger text-xs font-medium">
-                {state.errors.email[0]}
+                {errors.email[0]}
               </p>
             )}
           </div>
@@ -58,23 +60,20 @@ export default function LoginPage() {
               type="password"
               placeholder="Contraseña"
               disabled={isPending}
-              className={
-                state?.errors?.password
-                  ? 'border-danger focus-visible:ring-danger'
-                  : 'border-surface-border'
-              }
+              defaultValue={getVal('password')}
+              aria-invalid={isInvalid('password')}
             />
-            {state?.errors?.password && (
+            {errors?.password && (
               <p className="text-danger text-xs font-medium">
-                {state.errors.password[0]}
+                {errors.password[0]}
               </p>
             )}
           </div>
 
           {/* Error de Supabase (Credenciales inválidas) */}
-          {state?.message && (
+          {!!globalError && (
             <div className="border-danger/20 bg-danger/10 text-danger rounded-lg border p-3 text-center text-xs font-medium">
-              {state.message}
+              {globalError}
             </div>
           )}
 

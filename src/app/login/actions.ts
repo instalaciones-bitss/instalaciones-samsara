@@ -14,10 +14,12 @@ const loginSchema = z.object({
     .min(6, { message: 'La contraseña debe tener al menos 6 caracteres.' }),
 })
 
+export type LoginInputs = z.infer<typeof loginSchema>
+
 export async function login(
-  _prevState: ActionResponse,
+  _prevState: ActionResponse<LoginInputs>,
   formData: FormData
-): Promise<ActionResponse> {
+): Promise<ActionResponse<LoginInputs>> {
   const supabase = await createClient()
   const rawData = Object.fromEntries(formData.entries())
   const validatedFields = loginSchema.safeParse(rawData)
@@ -26,6 +28,7 @@ export async function login(
   if (!validatedFields.success) {
     return {
       errors: z.flattenError(validatedFields.error).fieldErrors,
+      inputs: { email: rawData.email } as LoginInputs,
     }
   }
 
@@ -41,12 +44,14 @@ export async function login(
     if (error) {
       return {
         message: 'Credenciales no válidas. Revisa tu correo y contraseña.',
+        inputs: { email: email } as LoginInputs,
       }
     }
   } catch (e) {
     // 3. Captura de errores inesperados (red, etc.)
     return {
       message: 'Error de conexión. Inténtalo de nuevo más tarde.',
+      inputs: { email: email } as LoginInputs,
     }
   }
 

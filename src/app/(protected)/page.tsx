@@ -1,10 +1,12 @@
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { getAuthSession } from '@/lib/supabase/server'
 import {
   PROJECT_STATUS_THEME,
   ProjectStatus,
   ProjectSummary,
 } from '@/types/app.types'
+import { Plus } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function DashboardPage() {
@@ -35,7 +37,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="bg-surface-low text-foreground min-h-screen p-8">
-      <header className="mb-12 flex items-end justify-between">
+      <header className="mb-10 flex items-end justify-between">
         <div>
           <p className="text-muted-foreground text-sm font-semibold tracking-widest uppercase">
             Panel de Control
@@ -51,8 +53,18 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <div className="mb-4">
+      <div className="mb-6 flex items-center justify-between">
         <h2 className="text-2xl font-bold tracking-tight">Proyectos</h2>
+
+        <Button
+          asChild
+          className="bg-primary hover:bg-primary/90 shadow-primary/10 font-bold text-black shadow-lg transition-all active:scale-[0.98]"
+        >
+          <Link href="/projects/new" className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            <span>NUEVO PROYECTO</span>
+          </Link>
+        </Button>
       </div>
 
       {/* Grid de Proyectos */}
