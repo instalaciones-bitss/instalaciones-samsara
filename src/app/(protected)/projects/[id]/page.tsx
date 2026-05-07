@@ -9,7 +9,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { VehicleActions } from './VehicleActions'
+import { VehicleActions } from './_components/VehicleActions'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { cn } from '@/lib/utils'
@@ -18,6 +18,8 @@ import {
   VehicleStatus,
   VEHICLE_STATUS_THEME,
 } from '@/types/app.types'
+import { FileSpreadsheet } from 'lucide-react'
+import { ImportVehiclesModal } from './_components/ImportVehiclesModal'
 
 export default async function ProjectDetailPage({
   params,
@@ -64,6 +66,8 @@ export default async function ProjectDetailPage({
   const projectDevices = devicesResponse.data || []
   const technicians = techniciansResponse.data || []
 
+  const noVehicles = !project.vehicles.length
+
   return (
     <div className="space-y-6 p-8">
       {' '}
@@ -83,84 +87,112 @@ export default async function ProjectDetailPage({
             unidades registradas
           </p>
         </div>
+        {!noVehicles && (
+          <ImportVehiclesModal
+            projectName={project.name}
+            variant="outline"
+            size="sm"
+            projectId={project.id}
+          />
+        )}
       </header>
-      <div className="border-surface-border bg-surface-mid overflow-hidden rounded-xl border">
-        <Table>
-          <TableHeader className="bg-surface-high/50">
-            <TableRow className="border-surface-border hover:bg-transparent">
-              {[
-                'VIN',
-                'Económico',
-                'Placas',
-                'Estatus',
-                'Técnico',
-                'Fecha',
-              ].map((h) => (
-                <TableHead
-                  key={h}
-                  className="text-muted-foreground text-xs font-bold tracking-wider uppercase"
-                >
-                  {h}
-                </TableHead>
-              ))}
-              <TableHead />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {project.vehicles?.map((vehicle) => {
-              const { technicians: _unused, ...vehicleData } = vehicle
-              const statusTheme =
-                VEHICLE_STATUS_THEME[vehicle.status as VehicleStatus]
+      {noVehicles ? (
+        <div className="border-surface-border flex flex-col items-center justify-center rounded-2xl border border-dashed py-24 text-center">
+          <FileSpreadsheet className="text-muted-foreground/40 mb-4 h-12 w-12" />
+          <h3 className="text-lg font-bold">Sin unidades registradas</h3>
+          <p className="text-muted-foreground mb-8 text-sm">
+            Comienza cargando el listado desde un archivo Excel.
+          </p>
+          <ImportVehiclesModal
+            projectName={project.name}
+            size="lg"
+            label="Importar listado de unidades"
+            projectId={project.id}
+          />
+        </div>
+      ) : (
+        <div className="border-surface-border bg-surface-mid overflow-hidden rounded-xl border">
+          <Table>
+            <TableHeader className="bg-surface-high/50">
+              <TableRow className="border-surface-border hover:bg-transparent">
+                {[
+                  'VIN',
+                  'Económico',
+                  'Placas',
+                  'Estatus',
+                  'Técnico',
+                  'Fecha',
+                ].map((h) => (
+                  <TableHead
+                    key={h}
+                    className="text-muted-foreground text-xs font-bold tracking-wider uppercase"
+                  >
+                    {h}
+                  </TableHead>
+                ))}
+                <TableHead />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {project.vehicles?.map((vehicle) => {
+                const { technicians: _unused, ...vehicleData } = vehicle
+                const statusTheme =
+                  VEHICLE_STATUS_THEME[vehicle.status as VehicleStatus]
 
-              return (
-                <TableRow
-                  key={vehicle.id}
-                  className="border-surface-border hover:bg-surface-high/30 transition-colors"
-                >
-                  <TableCell className="text-foreground font-mono text-sm">
-                    {vehicle.vin}
-                  </TableCell>
-                  <TableCell className="text-foreground font-medium">
-                    {vehicle.eco_number || '—'}
-                  </TableCell>
-                  <TableCell className="text-foreground">
-                    {vehicle.plate || '—'}
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        'font-semibold capitalize',
-                        statusTheme?.className ?? 'bg-surface-high'
-                      )}
-                    >
-                      {statusTheme?.label ?? vehicle.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-foreground">
-                    {vehicle.technicians?.name || '---'}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground text-sm">
-                    {vehicle.installed_at
-                      ? format(new Date(vehicle.installed_at), 'dd MMM yyyy', {
-                          locale: es,
-                        })
-                      : '---'}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <VehicleActions
-                      vehicle={vehicleData as VehicleWithTechnician}
-                      projectId={project.id}
-                      projectDevices={projectDevices}
-                      technicians={technicians}
-                    />
-                  </TableCell>
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
-      </div>
+                return (
+                  <TableRow
+                    key={vehicle.id}
+                    className="border-surface-border hover:bg-surface-high/30 transition-colors"
+                  >
+                    <TableCell className="text-foreground font-mono text-sm">
+                      {vehicle.vin}
+                    </TableCell>
+                    <TableCell className="text-foreground font-medium">
+                      {vehicle.eco_number || '—'}
+                    </TableCell>
+                    <TableCell className="text-foreground">
+                      {vehicle.plate || '—'}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          'font-semibold capitalize',
+                          statusTheme?.className ?? 'bg-surface-high'
+                        )}
+                      >
+                        {statusTheme?.label ?? vehicle.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-foreground">
+                      {vehicle.technicians?.name || '---'}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-sm">
+                      {vehicle.installed_at
+                        ? format(
+                            new Date(vehicle.installed_at),
+                            'dd MMM yyyy',
+                            {
+                              locale: es,
+                            }
+                          )
+                        : '---'}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <VehicleActions
+                        vehicle={vehicleData as VehicleWithTechnician}
+                        projectId={project.id}
+                        projectDevices={projectDevices}
+                        technicians={technicians}
+                      />
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   )
 }

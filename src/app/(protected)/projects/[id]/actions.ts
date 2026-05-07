@@ -108,3 +108,29 @@ export async function getVehicleInstallationData(vehicleId: string) {
     return { success: false, error: e.message }
   }
 }
+
+export async function importVehicles(
+  projectId: string,
+  vehicles: TablesInsert<'vehicles'>[]
+) {
+  try {
+    const { supabase } = await getAuthSession()
+
+    // Add the project_id to every row (safety measure)
+    const dataToInsert = vehicles.map((v) => ({ ...v, project_id: projectId }))
+
+    const { data, error } = await supabase
+      .from('vehicles')
+      .upsert(dataToInsert, {
+        onConflict: 'vin,project_id', // Prevents the "disaster" of duplicates
+        ignoreDuplicates: true,
+      })
+
+    if (error) throw error
+
+    revalidatePath(`/projects/${projectId}`)
+    return { success: true, count: vehicles.length }
+  } catch (e: any) {
+    return { success: false, error: e.message }
+  }
+}

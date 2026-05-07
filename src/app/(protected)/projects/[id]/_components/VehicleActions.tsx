@@ -47,7 +47,7 @@ import {
 import { cn } from '@/lib/utils'
 
 // Actions
-import { getVehicleInstallationData, updateVehicleStatus } from './actions'
+import { getVehicleInstallationData, updateVehicleStatus } from '../actions'
 
 interface VehicleActionsProps {
   vehicle: VehicleWithTechnician
