@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useTransition } from 'react'
-import { format } from 'date-fns'
+import { useState, useActionState, useEffect } from 'react'
+import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import {
   Calendar as CalendarIcon,
@@ -15,7 +15,6 @@ import {
   TechnicianBasic,
   DeviceModelBasic,
 } from '@/types/app.types'
-// Componentes UI
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Calendar } from '@/components/ui/calendar'
@@ -45,10 +44,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { cn } from '@/lib/utils'
 
 // Actions
 import { getVehicleInstallationData, updateVehicleStatus } from './actions'
-import { cn } from '@/lib/utils'
 
 interface VehicleActionsProps {
   vehicle: VehicleWithTechnician
@@ -64,81 +63,53 @@ export function VehicleActions({
   technicians,
 }: VehicleActionsProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [isPending, startTransition] = useTransition()
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false)
 
-  const [selectedTech, setSelectedTech] = useState<string>(
-    vehicle.technician_id ?? ''
+  // Local state for initial fetch and UI bridge
+  const [initialSerials, setInitialSerials] = useState<Record<string, string>>(
+    {}
   )
   const [date, setDate] = useState<Date | undefined>(
     vehicle.installed_at ? new Date(vehicle.installed_at) : new Date()
   )
-  const [deviceSerialsByModelId, setDeviceSerialsByModelId] = useState<
-    Record<string, string>
-  >({})
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false)
 
-  const handlePrepareInstallation = async () => {
-    setDeviceSerialsByModelId({})
+  // BITSS Hook
+  const [state, formAction, isPending] = useActionState(
+    updateVehicleStatus.bind(
+      null,
+      vehicle.id,
+      projectId,
+      projectDevices.map((d) => d.id)
+    ),
+    null
+  )
 
-    try {
-      const result = await getVehicleInstallationData(vehicle.id)
+  // Helpers
+  const getVal = (field: string) =>
+    state?.inputs?.[field] ??
+    initialSerials[field] ??
+    (vehicle as any)[field] ??
+    ''
 
-      // 2. Manejo de la respuesta semántica
-      if (!result.success) {
-        alert(result.error)
-        return
-      }
+  const isInvalid = (field: string) => !!state?.errors?.[field]
 
-      // 3. Si llegamos aquí, TS sabe que result.data existe
-      const initialSerials: Record<string, string> = {}
-      projectDevices.forEach((m) => {
-        initialSerials[m.id] = ''
+  useEffect(() => {
+    if (state?.success) setIsDialogOpen(false)
+  }, [state])
+
+  const handleOpenDialog = async () => {
+    const result = await getVehicleInstallationData(vehicle.id)
+    if (result.success && result.data) {
+      const serialMap: Record<string, string> = {}
+      result.data.forEach((d) => {
+        if (d.device_model_id)
+          serialMap[d.device_model_id] = d.serial_number || ''
       })
-
-      result.data?.forEach((d) => {
-        if (d.device_model_id) {
-          initialSerials[d.device_model_id] = d.serial_number ?? ''
-        }
-      })
-
-      setDeviceSerialsByModelId(initialSerials)
-      setSelectedTech(vehicle.technician_id ?? '')
-      setDate(
-        vehicle.installed_at ? new Date(vehicle.installed_at) : new Date()
-      )
-      setIsDialogOpen(true)
-    } catch (e) {
-      // 4. Red de seguridad para errores de red del cliente
-      console.error('Error crítico:', e)
-      alert('Error de conexión con el servidor')
+      setInitialSerials(serialMap)
     }
+    setDate(vehicle.installed_at ? new Date(vehicle.installed_at) : new Date())
+    setIsDialogOpen(true)
   }
-
-  const handleConfirm = () => {
-    startTransition(async () => {
-      try {
-        await updateVehicleStatus(
-          vehicle.id,
-          'instalado',
-          projectId,
-          deviceSerialsByModelId,
-          selectedTech,
-          date
-        )
-        setIsDialogOpen(false)
-      } catch (error) {
-        alert(error instanceof Error ? error.message : 'Error desconocido')
-      }
-    })
-  }
-
-  const techIsMissing = !selectedTech
-  const isValid =
-    !!selectedTech &&
-    !!date &&
-    projectDevices.every(
-      (m) => !m.has_serial || deviceSerialsByModelId[m.id]?.trim()
-    )
 
   return (
     <>
@@ -153,15 +124,16 @@ export function VehicleActions({
           className="border-surface-border bg-surface-mid text-zinc-200"
         >
           <DropdownMenuItem
-            onSelect={handlePrepareInstallation}
-            className="focus:bg-surface-high focus:text-success"
+            onSelect={handleOpenDialog}
+            className="focus:bg-surface-high focus:text-success cursor-pointer"
           >
             <CheckCircle className="mr-2 h-4 w-4" />
             {vehicle.status === 'instalado'
               ? 'Editar Instalación'
               : 'Gestionar Instalación'}
           </DropdownMenuItem>
-          <DropdownMenuItem className="focus:bg-surface-high focus:text-danger text-danger">
+          {/* Preserved Button */}
+          <DropdownMenuItem className="focus:bg-surface-high focus:text-danger text-danger cursor-pointer">
             <AlertCircle className="mr-2 h-4 w-4" />
             Reportar Problema
           </DropdownMenuItem>
@@ -170,102 +142,107 @@ export function VehicleActions({
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="border-surface-border bg-surface-low text-foreground max-w-md">
-          <DialogHeader>
-            <DialogTitle>
-              {vehicle.status === 'instalado' ? 'Editar' : 'Confirmar'}{' '}
-              Instalación
-            </DialogTitle>
-            <DialogDescription className="text-muted-foreground">
-              Unidad:{' '}
-              <span className="text-success font-mono">
-                {vehicle.eco_number || vehicle.vin}
-              </span>
-            </DialogDescription>
-          </DialogHeader>
+          <form action={formAction}>
+            <DialogHeader>
+              <DialogTitle>
+                {vehicle.status === 'instalado' ? 'Editar' : 'Confirmar'}{' '}
+                Instalación
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground">
+                Unidad:{' '}
+                <span className="text-success font-mono font-bold">
+                  {vehicle.eco_number || vehicle.vin}
+                </span>
+              </DialogDescription>
+            </DialogHeader>
 
-          <div className="space-y-5 py-4">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor="technician_id"
-                  className="text-muted-foreground text-xs font-semibold tracking-wider uppercase"
-                >
-                  Técnico Responsable
-                </label>
-                {techIsMissing && (
-                  <span className="text-danger animate-pulse text-xs font-bold">
-                    REQUERIDO
-                  </span>
-                )}
-              </div>
-              <Select value={selectedTech} onValueChange={setSelectedTech}>
-                <SelectTrigger
-                  aria-invalid={!!techIsMissing}
-                  className="h-9"
-                  id="technician_id"
-                >
-                  <SelectValue placeholder="Seleccionar técnico..." />
-                </SelectTrigger>
-                <SelectContent className="border-surface-border bg-surface-mid">
-                  {technicians.map((t) => (
-                    <SelectItem key={t.id} value={t.id}>
-                      {t.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <div className="space-y-5 py-4">
+              {state?.message && (
+                <div className="bg-danger/10 border-danger/20 text-danger flex items-center gap-2 rounded border p-3 text-xs">
+                  <AlertCircle className="h-4 w-4" /> {state.message}
+                </div>
+              )}
 
-            <div className="space-y-2">
-              <label
-                htmlFor="date-picker"
-                className="text-muted-foreground text-xs font-semibold tracking-wider uppercase"
-              >
-                Fecha de Instalación
-              </label>
-              <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="border-surface-border bg-surface-mid w-full justify-start text-zinc-200"
+              {/* TÉCNICO */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
+                    Técnico Responsable
+                  </label>
+                  {isInvalid('technician_id') && (
+                    <span className="text-danger animate-pulse text-xs font-bold">
+                      REQUERIDO
+                    </span>
+                  )}
+                </div>
+                <Select
+                  name="technician_id"
+                  defaultValue={getVal('technician_id')}
+                >
+                  <SelectTrigger
+                    aria-invalid={isInvalid('technician_id')}
+                    className="bg-surface-mid border-surface-border h-9"
                   >
-                    <CalendarIcon className="text-success mr-2 h-4 w-4" />
-                    {date ? (
-                      format(date, 'PPP', { locale: es })
-                    ) : (
-                      <span>Seleccionar fecha</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent
-                  className="border-surface-border bg-surface-low w-auto p-0"
-                  align="start"
-                >
-                  <Calendar
-                    id="date-picker"
-                    mode="single"
-                    selected={date}
-                    onSelect={(d) => {
-                      setDate(d)
-                      setIsCalendarOpen(false)
-                    }}
-                    locale={es}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
+                    <SelectValue placeholder="Seleccionar técnico..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-surface-mid border-surface-border">
+                    {technicians.map((t) => (
+                      <SelectItem key={t.id} value={t.id}>
+                        {t.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div className="space-y-3">
-              <span className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
-                Dispositivos
-              </span>
-              <div className="grid gap-2">
-                {projectDevices.map((model) => {
-                  const isMissing =
-                    model.has_serial &&
-                    !deviceSerialsByModelId[model.id]?.trim()
+              {/* FECHA */}
+              <div className="space-y-2">
+                <label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
+                  Fecha de Instalación
+                </label>
+                <input
+                  type="hidden"
+                  name="installed_at"
+                  value={date?.toISOString() || ''}
+                />
+                <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="bg-surface-mid border-surface-border w-full justify-start text-zinc-200"
+                    >
+                      <CalendarIcon className="text-success mr-2 h-4 w-4" />
+                      {date ? (
+                        format(date, 'PPP', { locale: es })
+                      ) : (
+                        <span>Seleccionar fecha</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="bg-surface-low border-surface-border p-0"
+                    align="start"
+                  >
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={(d) => {
+                        setDate(d)
+                        setIsCalendarOpen(false)
+                      }}
+                      locale={es}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
 
-                  return (
+              {/* DISPOSITIVOS */}
+              <div className="space-y-3">
+                <span className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
+                  Dispositivos
+                </span>
+                <div className="grid gap-2">
+                  {projectDevices.map((model) => (
                     <div
                       key={model.id}
                       className="border-surface-border bg-surface-mid/50 rounded-md border p-3"
@@ -274,7 +251,9 @@ export function VehicleActions({
                         <span
                           className={cn(
                             'text-xs font-medium',
-                            isMissing ? 'text-danger' : 'text-muted-foreground'
+                            isInvalid(model.id)
+                              ? 'text-danger'
+                              : 'text-muted-foreground'
                           )}
                         >
                           {model.model_name}
@@ -284,58 +263,55 @@ export function VehicleActions({
                             INCLUIDO
                           </span>
                         ) : (
-                          isMissing && (
+                          isInvalid(model.id) && (
                             <span className="text-danger animate-pulse text-xs font-bold">
                               REQUERIDO
                             </span>
                           )
                         )}
                       </div>
-
                       {model.has_serial && (
                         <Input
-                          id={model.id}
                           name={model.id}
+                          defaultValue={getVal(model.id)}
+                          aria-invalid={isInvalid(model.id)}
                           placeholder="S/N"
-                          aria-invalid={!!isMissing}
-                          className="h-8 font-mono text-xs"
-                          value={deviceSerialsByModelId[model.id] || ''}
-                          onChange={(e) =>
-                            setDeviceSerialsByModelId((prev) => ({
-                              ...prev,
-                              [model.id]: e.target.value,
-                            }))
-                          }
+                          className={cn(
+                            'bg-surface-mid border-surface-border h-8 font-mono text-xs',
+                            isInvalid(model.id) &&
+                              'border-danger focus-visible:ring-danger'
+                          )}
                         />
                       )}
                     </div>
-                  )
-                })}
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
 
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              variant="ghost"
-              onClick={() => setIsDialogOpen(false)}
-              disabled={isPending}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              Cancelar
-            </Button>
-            <Button
-              onClick={handleConfirm}
-              disabled={isPending || !isValid}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 font-bold"
-            >
-              {isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                'Guardar Cambios'
-              )}
-            </Button>
-          </DialogFooter>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setIsDialogOpen(false)}
+                disabled={isPending}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                disabled={isPending}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 font-bold"
+              >
+                {isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  'Guardar Cambios'
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </>
